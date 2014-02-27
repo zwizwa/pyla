@@ -1,0 +1,19 @@
+Python Logic Analyzer
+
+
+Entry: Basic tools
+Date: Thu Feb 27 23:34:00 CET 2014
+
+- pyside + opengl
+- inner loop in c++
+- swig for python interface
+- cmake for windows/linux/OSX compilation
+
+
+Entry: Basic idea
+Date: Thu Feb 27 23:40:39 CET 2014
+
+- fast video update "scope like"
+- point & shoot triggering
+- data logger window (serial, spi, i2c)
+
