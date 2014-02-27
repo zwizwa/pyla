@@ -1,0 +1,8 @@
+*~
+#*
+.#*
+__pycache__
+build
+pylacore_wrap.cxx
+pylacore.py
+

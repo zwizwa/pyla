@@ -17,3 +17,5 @@ Date: Thu Feb 27 23:40:39 CET 2014
 - point & shoot triggering
 - data logger window (serial, spi, i2c)
 
+
+ 
