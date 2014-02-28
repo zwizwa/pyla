@@ -6,9 +6,6 @@ sys.path.append("build")
 import pylacore
 from tools import *
 
-# Core module doesn't have any functionality.  Should this be removed?
-core = pylacore.pylacore()
-# print(core.identify())
 
 def check(cond, msg):
     if not cond:

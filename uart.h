@@ -1,6 +1,6 @@
 #ifndef _UART_H
 #define _UART_H
-#include "frontend.h"
+#include "pylacore.h"
 #include <string>
 #include <stdint.h>
 

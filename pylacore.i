@@ -12,6 +12,5 @@ namespace std {
 }
 
 %include "pylacore.h"
-%include "frontend.h"
 %include "uart.h"
 
