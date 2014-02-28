@@ -23,13 +23,6 @@ class analyzer {
   /* KISS: byte vector to byte vector conversion. */
   virtual void process(chunk&, chunk&) = 0;
   virtual ~analyzer() {}
-
-  /* For python, references don't seem to work. */
-  chunk process_f(chunk input) {
-    chunk output;
-    process (output, input);
-    return output;
-  }
 };
 
 class frontend : public analyzer {
@@ -50,14 +43,6 @@ class source {
  public:
   virtual void read(chunk&) = 0;
   virtual ~source() {}
-
-  /* For python, references don't seem to work. */
-  chunk read_f() {
-    chunk output;
-    read(output);
-    return output;
-  }
-
 };
 
 /* Read is non-blocking, returning empty vector when buffer is empty.
