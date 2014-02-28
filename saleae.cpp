@@ -116,17 +116,11 @@ saleae::saleae(U64 device_id, GenericInterface* device_interface) {
   _device_interface = device_interface;
   _samplerate = 4000000;
   _start();
-  _buffer = new memory();
 }
 saleae::~saleae() {
-  LOG("~saleae()\b");
-  delete _buffer;
+  LOG("~saleae()\n");
 }
-void saleae::set_buffer(buffer *b) {
-  buffer *old = _buffer;
-  _buffer = b;
-  delete old;
-}
+
 double saleae::get_samplerate() {
   return _samplerate;
 }
@@ -135,9 +129,9 @@ void saleae::set_samplerate_hint(double sr) {
 }
 
 void saleae::on_read(U8* data, U32 data_length) {
-  std::vector<unsigned char> input;
+  chunk input;
   input.assign(data, data + data_length);
-  _buffer->write(input);
+  _buffer.write(input);
 }
 void saleae::on_error() {
   // FIXME
@@ -148,8 +142,8 @@ void saleae::on_disconnect() {
   LOG("on_error\n");
 }
 
-std::vector<unsigned char> saleae::read() {
-  return _buffer->read();
+chunk saleae::read() {
+  return _buffer.read();
 }
 
 U64 saleae::get_device_id() {

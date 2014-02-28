@@ -72,8 +72,8 @@ void uart::_set_state(enum sm_state s)
   }
 }
 
-std::vector<unsigned char> uart::process(std::vector<unsigned char> input) {
-  std::vector<unsigned char> output;
+chunk uart::process(chunk input) {
+  chunk output;
   int i, i_size = input.size();
   LOG("input.size() = %d\n",i_size);
   for (i=0; i<i_size; i++) {

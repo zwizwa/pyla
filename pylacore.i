@@ -6,7 +6,7 @@
 #include "uart.h"
 #include "saleae.h"
 %}
- 
+
 namespace std {
   %template(UnsignedIntVector) std::vector<unsigned int>;
   %template(UnsignedCharVector) std::vector<unsigned char>;

@@ -58,7 +58,9 @@ def test_saleae_uart():
     while 1:
         out = bytes(uart_source.read())
         if len(out):
-            sys.stderr.write(out.decode(encoding='UTF-8'))
+            sys.stderr.write(out.decode('ascii','ignore'))
+        else:
+            time.sleep(0.1)
 
         
 

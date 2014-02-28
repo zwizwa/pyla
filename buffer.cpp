@@ -2,10 +2,10 @@
 #include <iostream>
 
 
-std::vector<unsigned char> blackhole::read() {
-  std::vector<unsigned char> empty; return empty;
+chunk blackhole::read() {
+  chunk empty; return empty;
 }
-void blackhole::write(std::vector<unsigned char> input) {
+void blackhole::write(chunk input) {
   std::cerr << "drop: " << input.size() << std::endl;
 }
 blackhole::~blackhole() {
@@ -15,16 +15,16 @@ blackhole::~blackhole() {
 // This is naive: eliminate copying by using shared pointers.
 memory::memory() {
 }
-void memory::write( std::vector<unsigned char> input) {
+void memory::write( chunk input) {
   _mutex.lock();
   if (!input.empty()) {
     _buf.push_back(input);
   }
   _mutex.unlock();
 }
- std::vector<unsigned char> memory::read() {
+ chunk memory::read() {
    _mutex.lock();
-   std::vector<unsigned char> vec;
+   chunk vec;
    if (!_buf.empty()) {
      vec = _buf.front();
      _buf.pop_front();

@@ -73,3 +73,27 @@ Let's continue with pull, and remove the read_sync() method.
 Convention is that each read will poll its chain.
 
 
+EDIT: Sort of works, but buffer management is going to be
+interesting...
+
+
+Entry: Memory management
+Date: Fri Feb 28 21:42:14 CET 2014
+
+Some ideas:
+
+- combination of push/pull would be nice: 
+
+  - push allows the large data reduction to happen strictly, so
+    buffers do not grow too large
+
+  - pull is easier to code
+
+  - a linear processing chain can be buffered at an arbitrary place in
+    the chain.
+
+  - a dag can be transformed into a a chain if ordering is allowed
+
+  - "fanout" is useful (i.e. obsering a multiple uarts / spi on a
+    single bus).  what about "merge" after "fanout"?
+

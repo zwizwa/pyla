@@ -13,7 +13,6 @@ class saleae : public sampler {
   double get_samplerate();
   std::vector<unsigned char> read();
   void set_samplerate_hint(double sr);
-  void set_buffer(buffer *);
 
   void on_read(U8* data, U32 data_length);
   void on_error();
@@ -26,7 +25,7 @@ class saleae : public sampler {
   U64 _device_id;
   GenericInterface* _device_interface;
   double _samplerate;
-  buffer *_buffer;
+  memory _buffer;
 };
 
 #endif // _SALEAE_H
