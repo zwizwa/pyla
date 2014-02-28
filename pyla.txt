@@ -19,3 +19,9 @@ Date: Thu Feb 27 23:40:39 CET 2014
 
 
  
+Entry: GNU Radio
+Date: Fri Feb 28 11:54:51 CET 2014
+
+If this is going to be DAG of byte stream processors, it might be good
+to not make it too incompatible to gnu radio processors.
+

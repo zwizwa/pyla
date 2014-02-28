@@ -20,19 +20,17 @@ class uart : public frontend {
   void set_channel(int c);
  private:
   void _update_clock_div();
-  double _br;
-  double _sr;
+  void _set_state(enum sm_state s);
+
+  /* Bitstream config. */
+  double _samplerate;
   unsigned int _clock_div; // _sr / _br
   int _channel;
-  void _log(std::string s) {}
-  void _set_state(enum sm_state s) { 
-    _state = s;
-    switch(_state) {
-    case sm_idle:   _log("I"); break;
-    case sm_sample: _log("S"); break;
-    case sm_break:  _log("B"); break;
-    }
-  }
+
+  /* UART config */
+  double _baudrate;
+  unsigned char _bit_stop;   // bit index of stop and parity bits
+  unsigned char _bit_parity;
 
   /* Bit-level parser state. */
   enum sm_state _state;      // current state

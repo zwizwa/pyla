@@ -18,37 +18,67 @@
 
 #include "uart.h"
 
+
+#if 0
+#include <stdio.h>
+#define LOG(...) fprintf(stderr, __VA_ARGS__)
+#else
+#define LOG(...)
+#endif
+
 uart::uart() {
-  _br = 9600;
-  _sr = 4000000;
+  _baudrate = 9600;
+  _samplerate = 4000000;
   _channel = 0;
   _update_clock_div();
   reset();
+
+  // FIXME: fixed at 8 data bits, 1 parity
+  _bit_parity = 8;
+  _bit_stop = 9;
 }
 void uart::reset() {
+  _set_state(sm_idle);
 }
 void uart::_update_clock_div() {
-  double div = _sr / _br;
+  double div = _samplerate / _baudrate;
   _clock_div = (unsigned int)(div + 0.5);
 }
 void uart::set_samplerate(double sr) {
-  _sr = sr;
+  if (sr <= 0) {
+    // WRONG
+  }
+  _samplerate = sr;
   _update_clock_div();
 }
 void uart::set_baudrate(double br) {
-  _br = br;
+  if (br <= 0) {
+    // WRONG
+  }
+  _baudrate = br;
   _update_clock_div();
 }
 void uart::set_channel(int channel) {
   _channel = channel;
   _update_clock_div();
 }
+void uart::_set_state(enum sm_state s)
+{ 
+  _state = s;
+  switch(_state) {
+  case sm_idle:   LOG("I"); break;
+  case sm_sample: LOG("S"); break;
+  case sm_break:  LOG("B"); break;
+  }
+}
 
 std::vector<unsigned char> uart::analyze(std::vector<unsigned char> input) {
   std::vector<unsigned char> output;
   int i, i_size = input.size();
+  LOG("input.size() = %d\n",i_size);
   for (i=0; i<i_size; i++) {
     int bit = (input[i] >> _channel) & 1;
+    LOG("%d", bit);
 
     switch (_state) {
 
@@ -73,30 +103,25 @@ std::vector<unsigned char> uart::analyze(std::vector<unsigned char> input) {
         _delay--;
       }
       else {
-        switch(_bits_count) {
-
-        case 9: // STOP BIT
+        if (_bits_count == _bit_stop) {
           if (!bit) {
-            _log("F");
+            LOG("F");
             // _set_state(sm_break);  // FIXME: break condition not implemented
           }
           output.push_back(_bits_data);
           _set_state(sm_idle);
-          break;
-
-        case 8:  // PARITY BIT
+        }
+        else if (_bits_count == _bit_parity) {
           if (bit != _bits_parity) {
-            _log("P");
+            LOG("P");
             // ignore it
           }
-          break;
-
-        default: // DATA BIT
+        }
+        else { // DATA BIT
           // Store and and schedule next sample.
           // LOG("%c", bit ? 'x' : '_');
           _bits_parity ^= bit;
           _bits_data |= (bit & 1) << _bits_count;
-          break;
         }
         _bits_count++;
         _delay = _clock_div;
@@ -108,6 +133,8 @@ std::vector<unsigned char> uart::analyze(std::vector<unsigned char> input) {
       break;
     }
   }
+  LOG("output.size() = %d\n",output.size());
+  return output;
 }
 
 
