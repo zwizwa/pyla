@@ -2,14 +2,14 @@
 #include <iostream>
 
 /* Wrapper functions for Python to work around pass-by-reference. */
-chunk process(analyzer *a, chunk input) {
+chunk process(operation *op, chunk input) {
   chunk output;
-  a->process(output, input);
+  op->process(output, input);
   return output;
 }
-chunk read(source *s) {
+chunk read(source *src) {
   chunk output;
-  s->read(output);
+  src->read(output);
   return output;
 }
 

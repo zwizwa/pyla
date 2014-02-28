@@ -18,14 +18,14 @@ typedef std::vector<unsigned char> chunk;
  
 
 
-class analyzer {
+class operation {
  public:
   /* KISS: byte vector to byte vector conversion. */
   virtual void process(chunk&, chunk&) = 0;
-  virtual ~analyzer() {}
+  virtual ~operation() {}
 };
 
-class frontend : public analyzer {
+class frontend : public operation {
 public:
   virtual void set_samplerate(double sr) = 0;
   virtual void reset() = 0;
@@ -36,13 +36,19 @@ public:
 };
 
 /* Source is the pull interface for data producers.
-   Sources can be made by chaining an analyzer and a source. 
+   Sources can be made by chaining an operation and a source. 
    FIXME: DAGs
 */
 class source {
  public:
   virtual void read(chunk&) = 0;
   virtual ~source() {}
+};
+
+class sink {
+ public:
+  virtual void write(chunk&) = 0;
+  virtual ~sink() {}
 };
 
 /* Read is non-blocking, returning empty vector when buffer is empty.
@@ -59,7 +65,7 @@ class sampler : public source {
    Read and write should be threadsafe.
    Buffer read is non-blocking, returning empty vector when buffer is empty.
    Read chunk size is implementation-dependent. */
-class buffer : public source {
+class buffer : public source, public sink {
  public:
   virtual void read(chunk&) = 0;
   virtual void write(chunk&) = 0;
@@ -67,14 +73,11 @@ class buffer : public source {
 };
 
 
-
-/* TOOLS */
-class chain : public source {
+/* COMPOSITION */
+class compose_op_src : public source {
  public:
-  chain(analyzer *a, source *s) {
-    _a = a;
-    _s = s;
-  }
+  compose_op_src(operation *a, source *s) : _a(a), _s(s) { }
+  ~compose_op_src() {}  // FIXME: ownership?
   void read(chunk& output) {
     chunk input;
     _s->read(input);
@@ -84,12 +87,40 @@ class chain : public source {
       _s->read(input);
     }
   }
-  ~chain() {}  // FIXME: ownership?
  private:
-  analyzer *_a;
+  operation *_a;
   source *_s;
 };
 
+class compose_snk_op : public sink {
+ public:
+  compose_snk_op(sink *s, operation *a) : _a(a), _s(s) { }
+  ~compose_snk_op() {}  // FIXME: ownership?
+  void write(chunk& input) {
+    chunk output;
+    _a->process(output, input);
+    _s->write(output);
+  }
+ private:
+  operation *_a;
+  sink *_s;
+};
+
+class compose_op_op : public operation {
+ public:
+  compose_op_op(operation *a, operation *b) : _a(a), _b(b) { }
+  ~compose_op_op() {}  // FIXME: ownership?
+  void process(chunk& output, chunk& input) {
+    chunk tmp;
+    _a->process(tmp, input);
+    _b->process(output, tmp);
+  }
+ private:
+  operation *_a;
+  operation *_b;
+};
+
+/* TOOLS */
 class blackhole : public buffer {
  public:
   void read(chunk&);
@@ -109,7 +140,7 @@ class memory : public buffer {
 };
 
 /* Wrapper functions for Python to work around pass-by-reference. */
-chunk process(analyzer *, chunk);
+chunk process(operation *, chunk);
 chunk read(source *);
  
 
