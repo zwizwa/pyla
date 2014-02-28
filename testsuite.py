@@ -46,21 +46,20 @@ def test_saleae():
         time.sleep(0.1)
         devices = pylacore.saleae.devices()
 
-    print(dir(devices[0]))
+    # print(dir(devices[0]))
 
     time.sleep(1)
 
 def test_saleae_uart():
     dev = pylacore.saleae.devices()[0]
-    dev.set_buffer(pylacore.memory())
-
     uart = pylacore.uart()
-
     uart_source = pylacore.chain(uart, dev);
+
     while 1:
-        out = uart_source.read()
-        print(out)
-        sleep(0.3)
+        out = bytes(uart_source.read())
+        if len(out):
+            sys.stderr.write(out.decode(encoding='UTF-8'))
+
         
 
 

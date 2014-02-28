@@ -1,6 +1,7 @@
 #include "pylacore.h"
 #include <iostream>
 
+
 std::vector<unsigned char> blackhole::read() {
   std::vector<unsigned char> empty; return empty;
 }
@@ -15,18 +16,21 @@ blackhole::~blackhole() {
 memory::memory() {
 }
 void memory::write( std::vector<unsigned char> input) {
-  _buf.push_back(input);
+  _mutex.lock();
+  if (!input.empty()) {
+    _buf.push_back(input);
+  }
+  _mutex.unlock();
 }
  std::vector<unsigned char> memory::read() {
-  if (_buf.empty()) {
-    std::vector<unsigned char> empty;
-    return empty;
-  }
-  else {
-     std::vector<unsigned char> first =_buf.front();
-    _buf.pop_front();
-    return first;
-  }
+   _mutex.lock();
+   std::vector<unsigned char> vec;
+   if (!_buf.empty()) {
+     vec = _buf.front();
+     _buf.pop_front();
+   }
+   _mutex.unlock();
+   return vec;
 }
 
 memory::~memory() {

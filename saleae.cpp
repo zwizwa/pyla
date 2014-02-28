@@ -116,17 +116,16 @@ saleae::saleae(U64 device_id, GenericInterface* device_interface) {
   _device_interface = device_interface;
   _samplerate = 4000000;
   _start();
-  _buffer = new blackhole();
+  _buffer = new memory();
 }
 saleae::~saleae() {
   LOG("~saleae()\b");
   delete _buffer;
 }
 void saleae::set_buffer(buffer *b) {
-  _mutex.lock();
-  delete _buffer;
+  buffer *old = _buffer;
   _buffer = b;
-  _mutex.unlock();
+  delete old;
 }
 double saleae::get_samplerate() {
   return _samplerate;
@@ -136,11 +135,9 @@ void saleae::set_samplerate_hint(double sr) {
 }
 
 void saleae::on_read(U8* data, U32 data_length) {
-  _mutex.lock();
   std::vector<unsigned char> input;
   input.assign(data, data + data_length);
   _buffer->write(input);
-  _mutex.unlock();
 }
 void saleae::on_error() {
   // FIXME
@@ -150,19 +147,9 @@ void saleae::on_disconnect() {
   // FIXME
   LOG("on_error\n");
 }
+
 std::vector<unsigned char> saleae::read() {
-  _mutex.lock();
-  std::vector<unsigned char> output = _buffer->read();
-  _mutex.unlock();
-  return output;
-}
-void saleae::read_sync() {
-  bool have = false;
-  while(!have) {
-    _mutex.lock();
-    have = true; // FIXME
-    _mutex.unlock();
-  }
+  return _buffer->read();
 }
 
 U64 saleae::get_device_id() {

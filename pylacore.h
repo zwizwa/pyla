@@ -4,7 +4,7 @@
 
 #include <vector>
 #include <list>
-
+#include <mutex.h>
 
 /* INTERFACES
 
@@ -103,6 +103,7 @@ class memory : public buffer {
   ~memory();
  private:
   std::list<std::vector<unsigned char> > _buf;
+  mutex _mutex;
 };
 
 

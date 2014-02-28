@@ -4,7 +4,6 @@
 #include "pylacore.h"
 #include <SaleaeDeviceApi.h>
 #include <vector>
-#include <mutex.h>
 
 
 class saleae : public sampler {
@@ -13,7 +12,6 @@ class saleae : public sampler {
   ~saleae();
   double get_samplerate();
   std::vector<unsigned char> read();
-  void read_sync();
   void set_samplerate_hint(double sr);
   void set_buffer(buffer *);
 
@@ -25,7 +23,6 @@ class saleae : public sampler {
   static std::vector<saleae*> devices();
 
  private:
-  mutex _mutex;
   U64 _device_id;
   GenericInterface* _device_interface;
   double _samplerate;

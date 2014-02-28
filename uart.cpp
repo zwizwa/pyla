@@ -34,8 +34,8 @@ uart::uart() {
   reset();
 
   // FIXME: fixed at 8 data bits, 1 parity
-  _bit_parity = 8;
-  _bit_stop = 9;
+  _bit_parity = -1; // 8
+  _bit_stop = 8; // 9
 }
 void uart::reset() {
   _set_state(sm_idle);
