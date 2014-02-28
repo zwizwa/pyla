@@ -25,3 +25,33 @@ Date: Fri Feb 28 11:54:51 CET 2014
 If this is going to be DAG of byte stream processors, it might be good
 to not make it too incompatible to gnu radio processors.
 
+
+Entry: Saleae Logic callbacks
+Date: Fri Feb 28 13:40:08 CET 2014
+
+SL API uses a callback.  This is a little inconvenient as it requires
+calling python from C++, or needs multiple threads with a buffer to
+decouple the source and sink.
+
+Let's go for the buffered approach.  This can then be memory backed or
+file backed.
+
+
+Entry: Calling python from C++ with swig
+Date: Fri Feb 28 16:47:22 CET 2014
+
+Reason: cross-platform windows / pthread multi-threading without
+including boost on the C++ side.
+
+Saleae uses multithreaded callbacks.
+
+Pff... it's probably easier to use boost.
+
+http://stackoverflow.com/questions/12392703/what-is-the-cleanest-way-to-call-a-python-function-from-c-with-a-swig-wrapped
+
+
+
+Entry: Use Boost.Python instead of SWIG?
+Date: Fri Feb 28 16:55:28 CET 2014
+
+https://dev.lsstcorp.org/trac/wiki/SwigVsBoostPython

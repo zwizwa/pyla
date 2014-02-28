@@ -5,4 +5,5 @@ __pycache__
 build
 pylacore_wrap.cxx
 pylacore.py
-
+SaleaeDeviceSdk-*
+Saleae Device SDK.pdf

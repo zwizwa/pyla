@@ -5,7 +5,7 @@ sys.path.append(".")
 sys.path.append("build")
 import pylacore
 from tools import *
-
+import time
 
 def check(cond, msg):
     if not cond:
@@ -36,3 +36,19 @@ def test_uart():
 test_uart()
 
                                
+# SALEAE
+def test_saleae():
+
+    # Wait for connection
+    devices = []
+    while not devices:
+        time.sleep(0.1)
+        devices = pylacore.saleae.devices()
+
+    print(dir(devices[0]))
+    
+    while 1:
+        time.sleep(1)
+
+test_saleae()
+

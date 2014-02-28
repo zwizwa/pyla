@@ -1,158 +1,177 @@
 /* Dump Saleae Logic output to stdout.
    Adapted from SaleaeDeviceSdk-1.1.14/source/ConsoleDemo.cpp */
 
-#include <SaleaeDeviceApi.h>
+#include "saleae.h"
 
 #include <memory>
 #include <iostream>
 #include <string>
 
+#if 1
 #include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-
-#include "apdu.h"  // protocol parser
-
-void __stdcall OnConnect( U64 device_id, GenericInterface* device_interface, void* user_data );
-void __stdcall OnDisconnect( U64 device_id, void* user_data );
-void __stdcall OnReadData( U64 device_id, U8* data, U32 data_length, void* user_data );
-void __stdcall OnWriteData( U64 device_id, U8* data, U32 data_length, void* user_data );
-void __stdcall OnError( U64 device_id, void* user_data );
-
-LogicInterface* gDeviceInterface = NULL;
-
 #define LOG(...) fprintf(stderr, __VA_ARGS__)
+#else
+#define LOG(...)
+#endif
 
-U64 gLogicId = 0;
-U32 gSampleRateHz = 4000000;
 
-#define CMD_READ  thread_cmd[0]
-#define CMD_WRITE thread_cmd[1]
-int thread_cmd[2];
+/* Put these as global static members in the C++ module, not as static
+   memers of the class.  swig chokes on the __stdcall */
 
-#define CMD_NOP   0
-#define CMD_ERROR 1
+static void __stdcall OnConnect( U64 device_id, GenericInterface* device_interface, void* user_data );
+static void __stdcall OnDisconnect( U64 device_id, void* user_data );
+static void __stdcall OnReadData( U64 device_id, U8* data, U32 data_length, void* user_data );
+static void __stdcall OnWriteData( U64 device_id, U8* data, U32 data_length, void* user_data );
+static void __stdcall OnError( U64 device_id, void* user_data );
+static saleae *_find(U64);
+static void _start();
 
-int log_fd = -1;
 
-struct apdu_state *apdu_sink;
+class blackhole : public buffer {
+  std::vector<unsigned char> read() {
+    std::vector<unsigned char> empty; return empty;
+  }
+  void write(std::vector<unsigned char> input) {
+    std::cerr << "drop: " << input.size() << std::endl;
+  }
+  void read_sync() {
+    std::cerr << "hang" << std::endl;
+    while(1);
+  }
+};
 
-int main( int argc, char *argv[] ) {
+
+/* Registry */
+static std::vector<saleae*> _device_map;
+static mutex *_device_map_mutex;
+
+static void _start() {
+  static int global_init;
+  if (!_device_map_mutex) {
+    _device_map_mutex = new mutex();
+    LOG("_start()\n");
     DevicesManagerInterface::RegisterOnConnect( &OnConnect );
     DevicesManagerInterface::RegisterOnDisconnect( &OnDisconnect );
     DevicesManagerInterface::BeginConnect();
-    
-    // apdu_sink = apdu_new(16); // 3.817 MHz -> 238k baud
-
-    apdu_sink = apdu_new(4000000,   // logic sample freq
-                         3817000),  // card clock
-
-    LOG("Samplerate %d\n", gSampleRateHz);
-
-    if (0) {
-        const char *log_file = "/tmp/sl-apdu.bin";
-        log_fd = open(log_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-        LOG("logic trace log file = %s\n", log_file);
-    }
-
-    // Use unix pipe for inter-thread communication.
-    pipe(thread_cmd);
-    int cmd;
-    while(sizeof(int) == read(CMD_READ, &cmd, sizeof(cmd))) {
-        switch(cmd) {
-        default:
-            LOG("Ignoring unknown command %d\n", cmd);
-        case CMD_NOP:
-            break;
-        case CMD_ERROR:
-            /* On error, we just restart. */
-            if (!gDeviceInterface) {
-                LOG("CMD_ERROR: gDeviceInterface == NULL\n");
-            }
-            else {
-                LOG("CMD_ERROR: starting read\n");
-                gDeviceInterface->ReadStart();
-            }
-            break;
-        }
-    }
+    global_init = 1;
+  }
 }
 
-void write_fd(int fd, U8* data, U32 data_length) {
-    int i = 0;
-    while (i < data_length) {
-        int remaining = data_length - i;
-        int rv = write(fd, data + i, remaining);
-        if (rv > 0) {
-            i += rv;
-        }
-        else {
-            LOG("stdout write error %d\n", rv);
-            exit(1);
-        }
+static saleae *_register(U64 device_id, GenericInterface* device_interface) {
+  _device_map_mutex->lock();
+  /* It doesn't seem that we can use user_data to associate an instance
+     to each device_id, so do dispatch based on a device_map */
+  int i, n = _device_map.size();
+  saleae *d = NULL;
+  for(i=0; i<n; i++) {
+    d = _device_map[i];
+    if (d->get_device_id() == device_id) break;
+  }
+  if (!d) {
+    if (device_interface) {
+      d = new saleae(device_id, device_interface);
+      _device_map.push_back(d);
     }
+  }
+  _device_map_mutex->unlock();
+  return d;
+}
+static saleae *_find(U64 device_id) {
+  return _register(device_id, NULL);
+}
+
+
+std::vector<saleae*> saleae::devices() {
+  _start();
+  _device_map_mutex->lock();
+  std::vector<saleae*> _map_copy = _device_map;
+  _device_map_mutex->unlock();
+  return _map_copy;
 }
 
 
 void __stdcall OnReadData( U64 device_id, U8* data, U32 data_length, void* user_data ) {
-    // LOG(".");
-
-    // Parse APDU data on 8-bit bus: 0=IO,1=RST,2=VCC.
-    apdu_push8(apdu_sink, data, data_length);
-
-    // Optionally log to fd.
-    if (log_fd >= 0) {
-        write_fd(log_fd, data, data_length);
-    }
-
-
-
-    // We own, so need to delete.
-    DevicesManagerInterface::DeleteU8ArrayPtr( data );
+  _find(device_id)->on_read(data, data_length);
+  // We own, so need to delete.
+  DevicesManagerInterface::DeleteU8ArrayPtr( data );
 }
-
-void __stdcall OnWriteData( U64 device_id, U8* data, U32 data_length, void* user_data )
-{
+void __stdcall OnWriteData( U64 device_id, U8* data, U32 data_length, void* user_data ) {
     /* Not used */
 }
-
-void __stdcall OnError( U64 device_id, void* user_data )
-{
-    LOG("ERROR\n");
-    // Notify main thread
-    int cmd = CMD_ERROR;
-    write(CMD_WRITE, &cmd, sizeof(cmd));
+void __stdcall OnError( U64 device_id, void* user_data ) {
+  LOG("ERROR\n");
+  _find(device_id)->on_error();
 }
-
 void __stdcall OnDisconnect( U64 device_id, void* user_data ) {
-    if( device_id == gLogicId ) {
-        LOG("Disconnect %08x\n", device_id);
-        gDeviceInterface = NULL;
-    }
+  _find(device_id)->on_disconnect();
+}
+void __stdcall OnConnect( U64 device_id, GenericInterface* device_interface, void* user_data ) {
+  if( dynamic_cast<LogicInterface*>( device_interface ) != NULL ) {
+    LOG("Connect %08x\n", device_id);
+    LogicInterface *i = (LogicInterface*)device_interface;
+
+    saleae *dev = _register(device_id, i);
+
+    i->RegisterOnReadData( &OnReadData );
+    i->RegisterOnWriteData( &OnWriteData );
+    i->RegisterOnError( &OnError );
+    i->SetSampleRateHz( dev->get_samplerate() );
+    // Start automatically
+    i->ReadStart();
+  }
 }
 
 
-void __stdcall OnConnect( U64 device_id, GenericInterface* device_interface, void* user_data )
-{
-    if( dynamic_cast<LogicInterface*>( device_interface ) != NULL ) {
-        LOG("Connect %08x\n", device_id);
 
-        gDeviceInterface = (LogicInterface*)device_interface;
-        gLogicId = device_id;
-        
-        gDeviceInterface->RegisterOnReadData( &OnReadData );
-        gDeviceInterface->RegisterOnWriteData( &OnWriteData );
-        gDeviceInterface->RegisterOnError( &OnError );
-        
-        gDeviceInterface->SetSampleRateHz( gSampleRateHz );
 
-        // Start automatically
-        gDeviceInterface->ReadStart();
-
-    }
+saleae::saleae(U64 device_id, GenericInterface* device_interface) {
+  _device_id = device_id;
+  _device_interface = device_interface;
+  _samplerate = 4000000;
+  _start();
+  _buffer = new blackhole();
 }
+saleae::~saleae() {
+  LOG("~saleae()\b");
+  delete _buffer;
+}
+double saleae::get_samplerate() {
+  return _samplerate;
+}
+void saleae::set_samplerate_hint(double sr) {
+  _samplerate = sr;
+}
+
+void saleae::on_read(U8* data, U32 data_length) {
+  _mutex.lock();
+  std::vector<unsigned char> input;
+  input.assign(data, data + data_length);
+  _buffer->write(input);
+  _mutex.unlock();
+}
+void saleae::on_error() {
+  // FIXME
+  LOG("on_error\n");
+}
+void saleae::on_disconnect() {
+  // FIXME
+  LOG("on_error\n");
+}
+std::vector<unsigned char> saleae::read() {
+  _mutex.lock();
+  std::vector<unsigned char> output = _buffer->read();
+  _mutex.unlock();
+  return output;
+}
+void saleae::read_sync() {
+  bool have = false;
+  while(!have) {
+    _mutex.lock();
+    have = true; // FIXME
+    _mutex.unlock();
+  }
+}
+
+
+
 
