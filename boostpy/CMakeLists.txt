@@ -1,14 +1,31 @@
-# https://github.com/TNG/boost-python-examples/blob/master/CMakeLists.txt
+# https://www.preney.ca/paul/archives/107
 
-cmake_minimum_required(VERSION 2.8.3)
-FIND_PACKAGE(PythonInterp)
-FIND_PACKAGE(PythonLibs)
-FIND_PACKAGE(Boost COMPONENTS python)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+IF(NOT CMAKE_BUILD_TYPE)
+  SET(CMAKE_BUILD_TYPE "DEBUG")
+  #SET(CMAKE_BUILD_TYPE "RELEASE")
+  #SET(CMAKE_BUILD_TYPE "RELWITHDEBINFO")
+  #SET(CMAKE_BUILD_TYPE "MINSIZEREL")
+ENDIF()
 
-ENABLE_TESTING()
-INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
+FIND_PACKAGE(Boost 1.45.0)
+IF(Boost_FOUND)
+  INCLUDE_DIRECTORIES("${Boost_INCLUDE_DIRS}" "/usr/include/python2.7")
+  SET(Boost_USE_STATIC_LIBS OFF)
+  SET(Boost_USE_MULTITHREADED ON)
+  SET(Boost_USE_STATIC_RUNTIME OFF)
+  FIND_PACKAGE(Boost 1.45.0 COMPONENTS python)
+  ADD_LIBRARY(experiment SHARED experiment.cpp)
+  TARGET_LINK_LIBRARIES(experiment ${Boost_LIBRARIES})
+ELSEIF(NOT Boost_FOUND)
+  MESSAGE(FATAL_ERROR "Unable to find correct Boost version. Did you set BOOST_ROOT?")
+ENDIF()
 
-PYTHON_ADD_MODULE(experiment experiment.cpp)
+IF(CMAKE_COMPILER_IS_GNUCXX)
+  ADD_DEFINITIONS("-Wall")
+ELSE()
+  MESSAGE(FATAL_ERROR "CMakeLists.txt has not been tested/written for your compiler.")
+ENDIF()
 
-# FILE(COPY experiment.py DESTINATION .)
-# ADD_TEST(Experiment experiment.py)
+SET_TARGET_PROPERTIES(experiment PROPERTIES PREFIX "")
+
