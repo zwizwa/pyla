@@ -72,8 +72,7 @@ void uart::_set_state(enum sm_state s)
   }
 }
 
-chunk uart::process(chunk input) {
-  chunk output;
+void uart::process(chunk& output, chunk& input) {
   int i, i_size = input.size();
   LOG("input.size() = %d\n",i_size);
   for (i=0; i<i_size; i++) {
@@ -134,7 +133,6 @@ chunk uart::process(chunk input) {
     }
   }
   LOG("output.size() = %d\n",output.size());
-  return output;
 }
 
 

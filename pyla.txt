@@ -97,3 +97,27 @@ Some ideas:
   - "fanout" is useful (i.e. obsering a multiple uarts / spi on a
     single bus).  what about "merge" after "fanout"?
 
+
+
+Entry: use the Forth
+Date: Fri Feb 28 22:44:26 CET 2014
+
+(aka Packet Forth)
+
+To express DAGs and solve memory management, it seems simplest to
+convert everythin to RPN.  This exposes refcounting (dup / drop / ...).
+
+This also allows driving the whole computation from the data gatherer.
+The results after one run can then simply be copied into high level
+data structures.
+
+Approach?
+
+- Rewrite all processors to use pointers or references.
+- Or have them operate on a stack directly
+- For refcounting: use boost::shared_ptr
+- Expose the stack as a stack of iterators?  Inner loop should be fast.
+- Allow the same code to run on a uC with static memory
+
+
+

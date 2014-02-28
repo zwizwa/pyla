@@ -11,7 +11,7 @@ class saleae : public sampler {
   saleae(U64 device_id, GenericInterface* device_interface);
   ~saleae();
   double get_samplerate();
-  std::vector<unsigned char> read();
+  void read(chunk&);
   void set_samplerate_hint(double sr);
 
   void on_read(U8* data, U32 data_length);

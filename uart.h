@@ -13,11 +13,13 @@ enum sm_state {
 class uart : public frontend {
  public:
   uart();
-  virtual std::vector<unsigned char> process(std::vector<unsigned char>);  
+  virtual void process(chunk&, chunk&);
   virtual void reset();
   void set_samplerate(double sr);
   void set_baudrate(double br);
   void set_channel(int c);
+
+
  private:
   void _update_clock_div();
   void _set_state(enum sm_state s);

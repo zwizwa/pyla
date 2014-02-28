@@ -142,8 +142,8 @@ void saleae::on_disconnect() {
   LOG("on_error\n");
 }
 
-chunk saleae::read() {
-  return _buffer.read();
+void saleae::read(chunk &output) {
+  _buffer.read(output);
 }
 
 U64 saleae::get_device_id() {

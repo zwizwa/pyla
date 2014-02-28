@@ -18,8 +18,15 @@ typedef std::vector<unsigned char> chunk;
 class analyzer {
  public:
   /* KISS: byte vector to byte vector conversion. */
-  virtual chunk process(chunk) = 0;
+  virtual void process(chunk&, chunk&) = 0;
   virtual ~analyzer() {}
+
+  /* For python, references don't seem to work. */
+  chunk process_f(chunk input) {
+    chunk output;
+    process (output, input);
+    return output;
+  }
 };
 
 class frontend : public analyzer {
@@ -28,7 +35,7 @@ public:
   virtual void reset() = 0;
   /* Parse a chunk of 8 channel binary data at samplerate, return a
      chunk of parsed bytes (representation not specified). */
-  virtual chunk process(chunk) = 0;
+  virtual void process(chunk&, chunk&) = 0;
   virtual ~frontend() {}
 };
 
@@ -38,8 +45,16 @@ public:
 */
 class source {
  public:
-  virtual chunk read() = 0;
+  virtual void read(chunk&) = 0;
   virtual ~source() {}
+
+  /* For python, references don't seem to work. */
+  chunk read_f() {
+    chunk output;
+    read(output);
+    return output;
+  }
+
 };
 
 /* Read is non-blocking, returning empty vector when buffer is empty.
@@ -58,8 +73,8 @@ class sampler : public source {
    Read chunk size is implementation-dependent. */
 class buffer : public source {
  public:
-  virtual chunk read() = 0;
-  virtual void write(chunk) = 0;
+  virtual void read(chunk&) = 0;
+  virtual void write(chunk&) = 0;
   virtual ~buffer() {}
 };
 
@@ -72,15 +87,14 @@ class chain : public source {
     _a = a;
     _s = s;
   }
-  chunk read() {
-    chunk output;
-    chunk input = _s->read();
+  void read(chunk& output) {
+    chunk input;
+    _s->read(input);
     while(!input.empty()) {
-      chunk chunk = _a->process(input);
-      output.insert(output.end(), chunk.begin(), chunk.end());
-      input = _s->read();
+      _a->process(output, input);
+      input.clear();
+      _s->read(input);
     }
-    return output;
   }
   ~chain() {}  // FIXME: ownership?
  private:
@@ -90,16 +104,16 @@ class chain : public source {
 
 class blackhole : public buffer {
  public:
-  chunk read();
-  void write(chunk);
+  void read(chunk&);
+  void write(chunk&);
   ~blackhole();
 };
 
 class memory : public buffer { 
  public:
   memory();
-  chunk read();
-  void write(chunk);
+  void read(chunk&);
+  void write(chunk&);
   ~memory();
  private:
   std::list<chunk> _buf;

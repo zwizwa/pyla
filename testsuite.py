@@ -31,7 +31,7 @@ def test_uart():
 
     ov_bytes = bytes(oversample(bits, ov))
     # print(ov_bytes)
-    output = uart.process(ov_bytes)
+    output = uart.process_f(ov_bytes)
     # print(bytes(output))
     check(output[0] == inbyte, "uart byte %02X" % inbyte)
 
@@ -56,7 +56,7 @@ def test_saleae_uart():
     uart_source = pylacore.chain(uart, dev);
 
     while 1:
-        out = bytes(uart_source.read())
+        out = bytes(uart_source.read_f())
         if len(out):
             sys.stderr.write(out.decode('ascii','ignore'))
         else:
