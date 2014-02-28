@@ -27,19 +27,6 @@ static saleae *_find(U64);
 static void _start();
 
 
-class blackhole : public buffer {
-  std::vector<unsigned char> read() {
-    std::vector<unsigned char> empty; return empty;
-  }
-  void write(std::vector<unsigned char> input) {
-    std::cerr << "drop: " << input.size() << std::endl;
-  }
-  void read_sync() {
-    std::cerr << "hang" << std::endl;
-    while(1);
-  }
-};
-
 
 /* Registry */
 static std::vector<saleae*> _device_map;
@@ -135,6 +122,12 @@ saleae::~saleae() {
   LOG("~saleae()\b");
   delete _buffer;
 }
+void saleae::set_buffer(buffer *b) {
+  _mutex.lock();
+  delete _buffer;
+  _buffer = b;
+  _mutex.unlock();
+}
 double saleae::get_samplerate() {
   return _samplerate;
 }
@@ -172,6 +165,9 @@ void saleae::read_sync() {
   }
 }
 
+U64 saleae::get_device_id() {
+  return _device_id; 
+}
 
 
 

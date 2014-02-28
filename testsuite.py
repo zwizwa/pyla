@@ -13,6 +13,8 @@ def check(cond, msg):
     print("PASS: %s" % msg)
 
 
+
+
 # UART
 def test_uart():
     uart = pylacore.uart()
@@ -29,11 +31,10 @@ def test_uart():
 
     ov_bytes = bytes(oversample(bits, ov))
     # print(ov_bytes)
-    output = uart.analyze(ov_bytes)
+    output = uart.process(ov_bytes)
     # print(bytes(output))
     check(output[0] == inbyte, "uart byte %02X" % inbyte)
 
-test_uart()
 
                                
 # SALEAE
@@ -46,9 +47,24 @@ def test_saleae():
         devices = pylacore.saleae.devices()
 
     print(dir(devices[0]))
-    
-    while 1:
-        time.sleep(1)
 
+    time.sleep(1)
+
+def test_saleae_uart():
+    dev = pylacore.saleae.devices()[0]
+    dev.set_buffer(pylacore.memory())
+
+    uart = pylacore.uart()
+
+    uart_source = pylacore.chain(uart, dev);
+    while 1:
+        out = uart_source.read()
+        print(out)
+        sleep(0.3)
+        
+
+
+test_uart()
 test_saleae()
+test_saleae_uart()
 

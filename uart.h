@@ -13,7 +13,7 @@ enum sm_state {
 class uart : public frontend {
  public:
   uart();
-  virtual std::vector<unsigned char> analyze(std::vector<unsigned char>);  
+  virtual std::vector<unsigned char> process(std::vector<unsigned char>);  
   virtual void reset();
   void set_samplerate(double sr);
   void set_baudrate(double br);

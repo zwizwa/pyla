@@ -55,3 +55,21 @@ Entry: Use Boost.Python instead of SWIG?
 Date: Fri Feb 28 16:55:28 CET 2014
 
 https://dev.lsstcorp.org/trac/wiki/SwigVsBoostPython
+
+
+
+Entry: Push architecutre?
+Date: Fri Feb 28 18:19:39 CET 2014
+
+It's going to feel much more natural from the device APIs to use a
+push architecture.  Allow the data source to push data into a
+processor network, and use mutexed polling on the result.
+
+Or does it really not matter?
+
+From the language side (functions), pull is more natural.
+
+Let's continue with pull, and remove the read_sync() method.
+Convention is that each read will poll its chain.
+
+
