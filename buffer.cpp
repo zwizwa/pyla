@@ -1,6 +1,17 @@
 #include "pylacore.h"
 #include <iostream>
 
+/* Wrapper functions for Python to work around pass-by-reference. */
+chunk process(analyzer *a, chunk input) {
+  chunk output;
+  a->process(output, input);
+  return output;
+}
+chunk read(source *s) {
+  chunk output;
+  s->read(output);
+  return output;
+}
 
 void blackhole::read(chunk& output) {
   chunk empty; 

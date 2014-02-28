@@ -15,6 +15,9 @@
 
 typedef std::vector<unsigned char> chunk;
 
+ 
+
+
 class analyzer {
  public:
   /* KISS: byte vector to byte vector conversion. */
@@ -119,6 +122,11 @@ class memory : public buffer {
   std::list<chunk> _buf;
   mutex _mutex;
 };
+
+/* Wrapper functions for Python to work around pass-by-reference. */
+chunk process(analyzer *, chunk);
+chunk read(source *);
+ 
 
 
 #endif // _PYLACORE_H
