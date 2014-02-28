@@ -4,5 +4,7 @@ if sys.version_info[0] != 3:
 sys.path.append("build")
 import pylacore
 
-print(pylacore.pylacore().helloworld())
+core = pylacore.pylacore()
+print(core.identify())
 
+print(pylacore.uart())

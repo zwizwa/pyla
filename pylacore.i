@@ -3,6 +3,7 @@
 %include "std_vector.i"
 %{
 #include "pylacore.h"
+#include "uart.h"
 %}
  
 namespace std {
@@ -11,5 +12,6 @@ namespace std {
 }
 
 %include "pylacore.h"
-
+%include "frontend.h"
+%include "uart.h"
 

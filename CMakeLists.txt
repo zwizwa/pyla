@@ -5,7 +5,8 @@ cmake_minimum_required (VERSION 2.8.6)
 # http://www.swig.org/Doc1.3/Introduction.html#Introduction_build_system
 add_library(_pylacore SHARED
   pylacore.cpp
-  pylacore_wrap.cxx  
+  pylacore_wrap.cxx
+  uart.cpp
 )
 
 if(WIN32)

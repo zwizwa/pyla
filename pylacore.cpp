@@ -1,13 +1,13 @@
 #include "pylacore.h"
+#include "uart.h"
+
+/* Not sure if this module is necessary.  Maybe rename to "network"
+   and allow arbitrary DAG composition of analyzers. */
 
 pylacore::pylacore()
 {
 }
 
-std::vector<unsigned char> pylacore::helloworld() {
-  std::vector<unsigned char> rv;
-  rv.push_back(1);
-  rv.push_back(2);
-  rv.push_back(3);
-  return rv;
+std::string pylacore::identify() {
+  return "pylacore";
 }
