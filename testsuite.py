@@ -40,27 +40,38 @@ def test_uart():
     check(output[0] == inbyte, "uart byte %02X" % inbyte)
 
 
-                               
-# SALEAE
-def test_saleae():
-
+def saleae_wait_connection():
     # Wait for connection
     devices = []
     while not devices:
         time.sleep(0.1)
         devices = pylacore.saleae.devices()
+    return devices
 
-# print(dir(devices[0]))
-
+                               
+# SALEAE
+def test_saleae():
+    devices = saleae_wait_connection()
+    d = devices[0]
+    b = pylacore.blackhole()
+    d.connect_sink(b)
     time.sleep(1)
 
 def test_saleae_uart():
-    dev = pylacore.saleae.devices()[0]
+    devices = saleae_wait_connection()
+    saleae = devices[0]
+
+    buf = pylacore.memory()  # we'll be reading this one
     uart = pylacore.uart()
-    uart_source = pylacore.compose_op_src(uart, dev);
+
+    # use buffer as a sink, and create a new sink to pass to the
+    # saleae callback (co-sink)
+    buf_uart = pylacore.compose_snk_op(buf, uart)
+
+    saleae.connect_sink(buf_uart)
 
     while 1:
-        out = bytes(pylacore.read(uart_source))
+        out = bytes(pylacore.read(buf))
         if len(out):
             sys.stderr.write(out.decode('ascii','ignore'))
         else:
@@ -70,6 +81,6 @@ def test_saleae_uart():
 
 
 test_uart()
-test_saleae()
+# test_saleae()
 test_saleae_uart()
 

@@ -1,6 +1,13 @@
 #ifndef _PYLACORE_H
 #define _PYLACORE_H
 
+#if 1
+#include <stdio.h>
+#define LOG(...) fprintf(stderr, __VA_ARGS__)
+#else
+#define LOG(...)
+#endif
+
 #include <vector>
 #include <list>
 #include <mutex.h>
@@ -51,10 +58,9 @@ class sink {
   virtual ~sink() {}
 };
 
-/* Read is non-blocking, returning empty vector when buffer is empty.
-   set_samplerate_hint() asks for a samplerate near the requested rate.
+/* set_samplerate_hint() asks for a samplerate near the requested rate.
    get_samplerate() is exact. */
-class sampler : public source {
+class sampler {
  public:
   virtual double get_samplerate() = 0;
   virtual void set_samplerate_hint(double sr) = 0;
@@ -73,50 +79,69 @@ class buffer : public source, public sink {
 };
 
 
+/* A data aquisition device or DAQ abstracts a physical device
+   implemented as a system callback / ISR.  It can deliver data to a
+   sink, and is therefore called a co-sink.
+
+   It is not the same as a source.  A source is a callable pull object
+   - not a callback framework.  A source can be made by combining a
+   DAQ and a buffer. */
+
+class cosink {
+ public:
+  virtual void connect_sink(sink*) = 0;
+};
+
+
+
+
 /* COMPOSITION */
 class compose_op_src : public source {
  public:
-  compose_op_src(operation& a, source& s) : _a(a), _s(s) { }
+  compose_op_src(operation* op, source* src) : _op(op), _src(src) { }
+  ~compose_op_src() { LOG("~compose_op_src()\n"); }
   void read(chunk& output) {
     chunk input;
-    _s.read(input);
+    _src->read(input);
     while(!input.empty()) {
-      _a.process(output, input);
+      _op->process(output, input);
       input.clear();
-      _s.read(input);
+      _src->read(input);
     }
   }
  private:
-  operation& _a;
-  source& _s;
+  operation* _op;
+  source* _src;
 };
 
 class compose_snk_op : public sink {
  public:
-  compose_snk_op(sink *s, operation *a) : _a(a), _s(s) { }
+  compose_snk_op(sink* snk, operation* op) : _op(op), _snk(snk) { }
+  ~compose_snk_op() { LOG("~compose_snk_op()\n"); }
   void write(chunk& input) {
     chunk output;
-    _a->process(output, input);
+    _op->process(output, input);
     if (!output.empty()) {
-      _s->write(output);
+      _snk->write(output);
     }
   }
  private:
-  operation *_a;
-  sink *_s;
+  operation* _op;
+  sink* _snk;
 };
 
 class compose_op_op : public operation {
  public:
-  compose_op_op(operation *a, operation *b) : _a(a), _b(b) { }
+  compose_op_op(operation* op1, operation* op2) : _op1(op1), _op2(op2) { }
+  ~compose_op_op() { LOG("~compose_op_op()\n"); }
   void process(chunk& output, chunk& input) {
     chunk tmp;
-    _a->process(tmp, input);
-    _b->process(output, tmp);
+    _op1->process(tmp, input);
+    _op1->process(output, tmp);
   }
  private:
-  operation *_a;
-  operation *_b;
+  operation* _op1;
+  operation* _op2;
 };
 
 /* TOOLS */

@@ -7,13 +7,6 @@
 #include <iostream>
 #include <string>
 
-#if 1
-#include <stdio.h>
-#define LOG(...) fprintf(stderr, __VA_ARGS__)
-#else
-#define LOG(...)
-#endif
-
 
 /* Put these as global static members in the C++ module, not as static
    memers of the class.  swig chokes on the __stdcall */
@@ -111,13 +104,16 @@ void __stdcall OnConnect( U64 device_id, GenericInterface* device_interface, voi
 
 
 
-saleae::saleae(U64 device_id, GenericInterface* device_interface) {
-  _device_id = device_id;
-  _device_interface = device_interface;
-  _samplerate = 4000000;
+saleae::saleae(U64 device_id, GenericInterface* device_interface) :
+  _device_id(device_id),
+  _device_interface(device_interface),
+  _samplerate(4000000),
+  _sink(NULL)
+{
   _start();
 }
 saleae::~saleae() {
+  // Tear down the callback before deleting any instances.
   LOG("~saleae()\n");
 }
 
@@ -127,11 +123,21 @@ double saleae::get_samplerate() {
 void saleae::set_samplerate_hint(double sr) {
   _samplerate = sr;
 }
+void saleae::connect_sink(sink *s) {
+  _sink_mutex.lock();
+  if (_sink) delete _sink;
+  _sink = s;
+  _sink_mutex.unlock();
+}
 
 void saleae::on_read(U8* data, U32 data_length) {
-  chunk input;
-  input.assign(data, data + data_length);
-  _buffer.write(input);
+  _sink_mutex.lock();
+  if (_sink) {
+    chunk input;
+    input.assign(data, data + data_length);
+    _sink->write(input);
+  }
+  _sink_mutex.unlock();
 }
 void saleae::on_error() {
   // FIXME
@@ -140,10 +146,6 @@ void saleae::on_error() {
 void saleae::on_disconnect() {
   // FIXME
   LOG("on_error\n");
-}
-
-void saleae::read(chunk &output) {
-  _buffer.read(output);
 }
 
 U64 saleae::get_device_id() {

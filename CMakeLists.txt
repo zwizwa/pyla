@@ -14,7 +14,6 @@ SWIG_ADD_MODULE(pylacore python pylacore.i
   pylacore.cpp
   uart.cpp
   saleae.cpp
-  buffer.cpp
 )
 
 include(ExternalProject)
