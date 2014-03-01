@@ -14,19 +14,23 @@ def check(cond, msg):
 
 
 # FIXME: Some memory management is needed for objects accessible both
-# in python and the "connection" objects in C++.  For now each object
-# is simply registered forever (leaked) using these wrapper functions.
+# in python and the co-sink objects in C++ (callbacks).  For now each
+# object is simply registered forever (leaked) using these wrapper
+# functions.
+
+# To reset, disconnect everything from the saleae co-sink objects and
+# clear the registry.
 
 class pyla_registry:
     def __init__(self):
         self.objects = []
     def __getattr__(self, attr):
-        cons = getattr(pylacore, attr)
         def proxy(*args):
-            ob = cons(*args)
+            ob = getattr(pylacore, attr)(*args)
             self.objects.append(ob)
             return ob
         return proxy
+        
 
 pyla = pyla_registry()
 
