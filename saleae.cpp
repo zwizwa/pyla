@@ -61,6 +61,17 @@ static saleae *_find(U64 device_id) {
 }
 
 
+
+void saleae::disconnect_sinks() {
+  LOG("disconnect_sinks()\n");
+  _device_map_mutex->lock();
+  int i, n = _device_map.size();
+  for(i=0; i<n; i++) {
+    _device_map[i]->connect_sink(NULL);
+  }
+  _device_map_mutex->unlock();
+}
+
 std::vector<saleae*> saleae::devices() {
   _start();
   _device_map_mutex->lock();
@@ -124,6 +135,7 @@ void saleae::set_samplerate_hint(double sr) {
   _samplerate = sr;
 }
 void saleae::connect_sink(sink *s) {
+  LOG("<%p>->connect_sink(<%p>)\n", this, s);
   _sink_mutex.lock();
   _sink = s;
   _sink_mutex.unlock();

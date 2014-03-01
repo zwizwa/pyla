@@ -4,6 +4,7 @@
 %{
 #include "pylacore.h"
 #include "uart.h"
+#include "syncser.h"
 #include "saleae.h"
 %}
 
@@ -15,5 +16,6 @@ namespace std {
 
 %include "pylacore.h"
 %include "uart.h"
+%include "syncser.h"
 %include "saleae.h"
 

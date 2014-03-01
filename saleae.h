@@ -24,6 +24,7 @@ class saleae : public cosink, public sampler {
   U64 get_device_id();
 
   static std::vector<saleae*> devices();
+  static void disconnect_sinks();
 
  private:
   U64 _device_id;

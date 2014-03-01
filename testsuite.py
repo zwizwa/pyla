@@ -1,11 +1,7 @@
-import sys
-if sys.version_info[0] != 3:
-    raise NameError("Python version 3 needed.")
-sys.path.append(".")
-sys.path.append("build")
-import pylacore
+import pyla
 from tools import *
 import time
+import sys
 
 def check(cond, msg):
     if not cond:
@@ -13,26 +9,6 @@ def check(cond, msg):
     print("PASS: %s" % msg)
 
 
-# FIXME: Some memory management is needed for objects accessible both
-# in python and the co-sink objects in C++ (callbacks).  For now each
-# object is simply registered forever (leaked) using these wrapper
-# functions.
-
-# To reset, disconnect everything from the saleae co-sink objects and
-# clear the registry.
-
-class pyla_registry:
-    def __init__(self):
-        self.objects = []
-    def __getattr__(self, attr):
-        def proxy(*args):
-            ob = getattr(pylacore, attr)(*args)
-            self.objects.append(ob)
-            return ob
-        return proxy
-        
-
-pyla = pyla_registry()
 
 
 # It's nice to be able to connect up object hierarchies in
@@ -58,54 +34,92 @@ def test_uart():
     # print(ov_bytes)
 
     # output = uart.process_f(ov_bytes)
-    output = pylacore.process(uart, ov_bytes)
+    output = pyla.process(uart, ov_bytes)
 
 
     # print(bytes(output))
     check(output[0] == inbyte, "uart byte %02X" % inbyte)
 
 
-def saleae_wait_connection():
-    # Wait for connection
-    devices = []
-    while not devices:
-        time.sleep(0.1)
-        devices = pylacore.saleae.devices()
-    return devices
-
                                
 # SALEAE
 def test_saleae():
-    devices = saleae_wait_connection()
+    devices = pyla.devices()
     d = devices[0]
     b = pyla.blackhole()
     d.connect_sink(b)
     time.sleep(1)
 
-def test_saleae_uart():
-    devices = saleae_wait_connection()
-    saleae = devices[0]
 
-    buf = pyla.memory()  # we'll be reading this one
-    uart = pyla.uart()
+def dump_ascii(seq):
+    for b in seq:
+        sys.stderr.write(chr(b))
+
+def dump_hex(seq, count_init = 0):
+    count = count_init
+    for b in seq:
+        if 0 == (count % 16):
+            sys.stderr.write("\n%08X " % count)
+        sys.stderr.write("%02X " % b)
+        sys.stderr.flush()
+        count += 1
+
+def buf_gen(buf):
+    while 1:
+        for b in pyla.read_blocking(buf):
+            yield(b)
+
+# Combine saleae, analyzer, buffer and python generator in one object.
+def saleae_analyzer(op):
+    saleae = pyla.devices()[0]
+    buf = pyla.memory()
 
     # use buffer as a sink, and create a new sink to pass to the
-    # saleae callback (co-sink)
-    buf_uart = pyla.compose_snk_op(buf, uart)
+    # saleae callback (co-sink).  we'll be reading the other side of
+    # buf (buffer is also a source).
 
-    saleae.connect_sink(buf_uart)
+    buf_op = pyla.compose_snk_op(buf, op)
+    saleae.connect_sink(buf_op)
+    return buf_gen(buf)
 
-    while 1:
-        out = bytes(pylacore.read(buf))
-        if len(out):
-            sys.stderr.write(out.decode('ascii','ignore'))
-        else:
-            time.sleep(0.1)
+def saleae_raw():
+    saleae = pyla.devices()[0]
+    buf = pyla.memory()  # we'll be reading this one
+    saleae.connect_sink(buf)
+    return buf_gen(buf)
 
+def dump_uart(channel):
+    uart = pyla.uart()
+    gen = saleae_analyzer(uart)
+    uart.set_channel(channel)
+    dump_ascii(gen)
+
+def dump_syncser(clock=0, data=1):
+    syncser = pyla.syncser()
+    gen = saleae_analyzer(syncser)
+    syncser.set_clock_channel(clock)
+    syncser.set_data_channel(data)
+    syncser.set_clock_edge(0)
+    dump_hex(gen)
+
+def filter_diff(seq):
+    last_b = 0
+    for b in seq:
+        if b != last_b:
+            yield(b)
+        last_b = b
+
+def test_saleae_diff():
+    dump_hex(filter_diff(saleae_raw()))
         
 
 
-test_uart()
-test_saleae()
-test_saleae_uart()
+# test_uart()
+# test_saleae()
+# dump_uart(0)
+dump_syncser()
+# test_saleae_syncser()
+# test_saleae_diff()
+
+
 
