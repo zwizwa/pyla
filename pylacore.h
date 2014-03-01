@@ -76,30 +76,30 @@ class buffer : public source, public sink {
 /* COMPOSITION */
 class compose_op_src : public source {
  public:
-  compose_op_src(operation *a, source *s) : _a(a), _s(s) { }
-  ~compose_op_src() {}  // FIXME: ownership?
+  compose_op_src(operation& a, source& s) : _a(a), _s(s) { }
   void read(chunk& output) {
     chunk input;
-    _s->read(input);
+    _s.read(input);
     while(!input.empty()) {
-      _a->process(output, input);
+      _a.process(output, input);
       input.clear();
-      _s->read(input);
+      _s.read(input);
     }
   }
  private:
-  operation *_a;
-  source *_s;
+  operation& _a;
+  source& _s;
 };
 
 class compose_snk_op : public sink {
  public:
   compose_snk_op(sink *s, operation *a) : _a(a), _s(s) { }
-  ~compose_snk_op() {}  // FIXME: ownership?
   void write(chunk& input) {
     chunk output;
     _a->process(output, input);
-    _s->write(output);
+    if (!output.empty()) {
+      _s->write(output);
+    }
   }
  private:
   operation *_a;
@@ -109,7 +109,6 @@ class compose_snk_op : public sink {
 class compose_op_op : public operation {
  public:
   compose_op_op(operation *a, operation *b) : _a(a), _b(b) { }
-  ~compose_op_op() {}  // FIXME: ownership?
   void process(chunk& output, chunk& input) {
     chunk tmp;
     _a->process(tmp, input);

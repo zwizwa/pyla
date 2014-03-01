@@ -121,3 +121,15 @@ Approach?
 
 
 
+Entry: Remodel the co-sink
+Date: Sat Mar  1 01:08:41 CET 2014
+
+- Construct a sink object.
+
+- Plug it into the SL callback, which is an cosink (an object
+  parameterized by a sink).
+
+An cosink is not a source, as it has the wrong caller/callee polarity.
+A sink has a read() method, while an cosink calls a write() method.
+
+
