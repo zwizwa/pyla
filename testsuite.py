@@ -58,9 +58,9 @@ def test_saleae():
 # test_uart()
 # test_saleae()
 # dump_uart(0)
-dump_syncser()
+# dump_syncser()
 # test_saleae_syncser()
-# test_saleae_diff()
+dump_diff()
 
 
 

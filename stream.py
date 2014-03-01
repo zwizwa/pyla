@@ -76,5 +76,5 @@ def dump_syncser(clock=0, data=1):
     print_hex(gen)
 
 def dump_diff():
-    print_hex(filter_diff(saleae_raw()))
+    print_hex(saleae_analyzer(pyla.diff()))
         

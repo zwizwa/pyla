@@ -133,3 +133,9 @@ An cosink is not a source, as it has the wrong caller/callee polarity.
 A sink has a read() method, while an cosink calls a write() method.
 
 
+
+Entry: Notes
+Date: Sat Mar  1 23:33:10 CET 2014
+
+http://downloads.saleae.com/SDK/Saleae%20Device%20SDK.pdf
+http://downloads.saleae.com/SDK/SaleaeDeviceSdk-1.1.14.zip

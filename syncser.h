@@ -28,5 +28,19 @@ class syncser : public frontend {
   int _clock_state;
 };
 
+
+/* Leave only changes in the output stream.  Useful for writing
+   synchronous protocols in python as it lowers CPU usage
+   significantly. */
+
+class diff : public operation {
+ public:
+  diff();
+  void process(chunk&, chunk&);
+ private:
+  int _last;
+};
+
 #endif //_SYNCSER_H
+
 

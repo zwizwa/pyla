@@ -43,6 +43,7 @@ atexit.register(r.disconnect_sinks)
 # classes
 syncser        = r.wrap(pylacore.syncser)
 uart           = r.wrap(pylacore.uart)
+diff           = r.wrap(pylacore.diff)
 blackhole      = r.wrap(pylacore.blackhole)
 memory         = r.wrap(pylacore.memory)
 compose_snk_op = r.wrap(pylacore.compose_snk_op)
