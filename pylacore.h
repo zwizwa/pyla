@@ -19,8 +19,7 @@
 typedef std::vector<unsigned char> chunk;
 
 
-/* Externally triggered data processor.
-   KISS: byte vector to byte vector conversion. */
+/* Externally triggered data processor. */
 class operation {
  public:
   virtual void process(chunk&, chunk&) = 0;
@@ -92,12 +91,9 @@ class frontend : public operation {
 public:
   virtual void set_samplerate(double sr) = 0;
   virtual void reset() = 0;
-  /* Parse a chunk of 8 channel binary data at samplerate, return a
-     chunk of parsed bytes (representation not specified). */
   virtual void process(chunk&, chunk&) = 0;
   virtual ~frontend() {}
 };
-
 
 
 
