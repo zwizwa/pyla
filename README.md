@@ -30,20 +30,21 @@ Currently supports:
 
 - Asynchronous serial
 
-- Difference
-
 - Console dump ASCII
 
 - Console dump HEX
 
 - Linear composition of analyzers 
 
+- De-duplication (data-reduction for synchronous protocol parsing in Python)
+
+
 
 Planned:
 
 - Cross-platform Qt GUI in Python PySide
 
-- Arbitrary data flow networks.
+- Arbitrary DAG composition.
 
 
 
