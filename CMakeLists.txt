@@ -14,24 +14,23 @@ SWIG_ADD_MODULE(pylacore python pylacore.i
   pylacore.cpp
   uart.cpp
   saleae.cpp
-  buffer.cpp
+  syncser.cpp
 )
 
-if(WIN32)
-  # FIXME
-else(WIN32)
-  FIND_LIBRARY(SALEADEVICE_LIBRARY
-    NAME SaleaeDevice64
-    HINTS "SaleaeDeviceSdk-1.1.14/lib")
-endif(WIN32)
+include(ExternalProject)
+ExternalProject_Add(SaleaeDeviceSdk
+  URL "http://downloads.saleae.com/SDK/SaleaeDeviceSdk-1.1.14.zip"
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ""
+  INSTALL_COMMAND ""
+)
+
+INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/SaleaeDeviceSdk-prefix/src/SaleaeDeviceSdk/include)
+
+SET(SALEADEVICESDK_LIB ${CMAKE_BINARY_DIR}/SaleaeDeviceSdk-prefix/src/SaleaeDeviceSdk/lib/)
+SET(SALEADEVICE_LIBRARY ${SALEADEVICESDK_LIB}/libSaleaeDevice64.so) #FIXME
 
 SWIG_LINK_LIBRARIES(pylacore
   ${PYTHON_LIBRARIES}
-  ${SALEADEVICE_LIBRARY}
-  )
-
-
-
-# FIXME: download http://downloads.saleae.com/SDK/SaleaeDeviceSdk-1.1.14.zip
-INCLUDE_DIRECTORIES("SaleaeDeviceSdk-1.1.14/include")
+  ${SALEADEVICE_LIBRARY})
 

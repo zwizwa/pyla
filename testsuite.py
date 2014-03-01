@@ -1,11 +1,8 @@
-import sys
-if sys.version_info[0] != 3:
-    raise NameError("Python version 3 needed.")
-sys.path.append(".")
-sys.path.append("build")
-import pylacore
+import pyla
 from tools import *
 import time
+import sys
+from stream import *
 
 def check(cond, msg):
     if not cond:
@@ -15,9 +12,14 @@ def check(cond, msg):
 
 
 
+# It's nice to be able to connect up object hierarchies in
+# Python, i.e. to not excessively wrap the base classes with
+# smart_ptr.  However, this makes it hard to
+
+
 # UART
 def test_uart():
-    uart = pylacore.uart()
+    uart = pyla.uart()
     br = 9600
     ov = 16
     sr = br * ov
@@ -33,7 +35,7 @@ def test_uart():
     # print(ov_bytes)
 
     # output = uart.process_f(ov_bytes)
-    output = pylacore.process(uart, ov_bytes)
+    output = pyla.process(uart, ov_bytes)
 
 
     # print(bytes(output))
@@ -43,33 +45,22 @@ def test_uart():
                                
 # SALEAE
 def test_saleae():
-
-    # Wait for connection
-    devices = []
-    while not devices:
-        time.sleep(0.1)
-        devices = pylacore.saleae.devices()
-
-# print(dir(devices[0]))
-
+    devices = pyla.devices()
+    d = devices[0]
+    b = pyla.blackhole()
+    d.connect_sink(b)
     time.sleep(1)
 
-def test_saleae_uart():
-    dev = pylacore.saleae.devices()[0]
-    uart = pylacore.uart()
-    uart_source = pylacore.compose_op_src(uart, dev);
-
-    while 1:
-        out = bytes(pylacore.read(uart_source))
-        if len(out):
-            sys.stderr.write(out.decode('ascii','ignore'))
-        else:
-            time.sleep(0.1)
-
-        
 
 
-test_uart()
-test_saleae()
-test_saleae_uart()
+
+
+# test_uart()
+# test_saleae()
+# dump_uart(0)
+dump_syncser()
+# test_saleae_syncser()
+# dump_diff()
+
+
 

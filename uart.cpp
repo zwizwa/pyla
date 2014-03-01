@@ -19,10 +19,8 @@
 #include "uart.h"
 
 
-#if 0
-#include <stdio.h>
-#define LOG(...) fprintf(stderr, __VA_ARGS__)
-#else
+#if 1
+#undef LOG
 #define LOG(...)
 #endif
 
