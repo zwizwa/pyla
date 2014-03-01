@@ -13,11 +13,32 @@ def check(cond, msg):
     print("PASS: %s" % msg)
 
 
+# FIXME: Some memory management is needed for objects accessible both
+# in python and the "connection" objects in C++.  For now each object
+# is simply registered forever (leaked) using these wrapper functions.
+
+class pyla_registry:
+    def __init__(self):
+        self.objects = []
+    def __getattr__(self, attr):
+        cons = getattr(pylacore, attr)
+        def proxy(*args):
+            ob = cons(*args)
+            self.objects.append(ob)
+            return ob
+        return proxy
+
+pyla = pyla_registry()
+
+
+# It's nice to be able to connect up object hierarchies in
+# Python, i.e. to not excessively wrap the base classes with
+# smart_ptr.  However, this makes it hard to
 
 
 # UART
 def test_uart():
-    uart = pylacore.uart()
+    uart = pyla.uart()
     br = 9600
     ov = 16
     sr = br * ov
@@ -53,7 +74,7 @@ def saleae_wait_connection():
 def test_saleae():
     devices = saleae_wait_connection()
     d = devices[0]
-    b = pylacore.blackhole()
+    b = pyla.blackhole()
     d.connect_sink(b)
     time.sleep(1)
 
@@ -61,12 +82,12 @@ def test_saleae_uart():
     devices = saleae_wait_connection()
     saleae = devices[0]
 
-    buf = pylacore.memory()  # we'll be reading this one
-    uart = pylacore.uart()
+    buf = pyla.memory()  # we'll be reading this one
+    uart = pyla.uart()
 
     # use buffer as a sink, and create a new sink to pass to the
     # saleae callback (co-sink)
-    buf_uart = pylacore.compose_snk_op(buf, uart)
+    buf_uart = pyla.compose_snk_op(buf, uart)
 
     saleae.connect_sink(buf_uart)
 
@@ -81,6 +102,6 @@ def test_saleae_uart():
 
 
 test_uart()
-# test_saleae()
+test_saleae()
 test_saleae_uart()
 

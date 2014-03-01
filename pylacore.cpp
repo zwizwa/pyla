@@ -21,6 +21,7 @@ void blackhole::write(chunk& input) {
   std::cerr << "drop: " << input.size() << std::endl;
 }
 blackhole::~blackhole() {
+  LOG("~blackhole()\n");
 }
 
 

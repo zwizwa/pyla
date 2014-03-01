@@ -125,7 +125,6 @@ void saleae::set_samplerate_hint(double sr) {
 }
 void saleae::connect_sink(sink *s) {
   _sink_mutex.lock();
-  if (_sink) delete _sink;
   _sink = s;
   _sink_mutex.unlock();
 }
