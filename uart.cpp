@@ -26,7 +26,7 @@
 
 uart::uart() {
   _baudrate = 9600;
-  _samplerate = 4000000;
+  _samplerate = PYLA_DEFAULT_SAMPLERATE;
   _channel = 0;
   _update_clock_div();
   reset();

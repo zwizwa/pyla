@@ -1,6 +1,8 @@
 #ifndef _PYLACORE_H
 #define _PYLACORE_H
 
+#define PYLA_DEFAULT_SAMPLERATE 12000000
+
 #if 1
 #include <stdio.h>
 #define LOG(...) fprintf(stderr, __VA_ARGS__)
