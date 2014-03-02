@@ -68,11 +68,12 @@ def dump_uart(channel=0, log=sys.stderr, dump=print_hex):
     uart.set_channel(channel)
     dump(gen, log=log)
 
-def dump_syncser(clock=0, data=1, log=sys.stderr, dump=print_hex):
+def dump_syncser(clock=0, data=1, frame=-1, log=sys.stderr, dump=print_hex):
     syncser = pyla.syncser()
     gen = saleae_analyzer(syncser)
     syncser.set_clock_channel(clock)
     syncser.set_data_channel(data)
+    syncser.set_frame_channel(frame)
     syncser.set_clock_edge(0)
     dump(gen,log=log)
 

@@ -15,17 +15,20 @@ class syncser : public frontend {
   void set_clock_edge(int e)    { _clock_edge = e; }
   void set_clock_channel(int c) { _clock_channel = c; }
   void set_data_channel(int c)  { _data_channel = c; }
+  void set_frame_channel(int c) { _frame_channel = c; }
 
  private:
   /* config */
   int _clock_channel;
   int _data_channel;
+  int _frame_channel;
   int _clock_edge;
 
   /* state */
   unsigned int _shift_count;
   unsigned int _shift_reg;
   int _clock_state;
+  int _frame_state;
 };
 
 
