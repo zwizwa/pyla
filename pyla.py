@@ -78,5 +78,5 @@ def read_blocking(buf):
         if (len(out)):
             return out
         else:
-            time.sleep(0.1)
+            time.sleep(.04)
 
