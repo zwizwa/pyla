@@ -3,19 +3,19 @@ import sys
 
 # Sequence sources / filters / sinks
 
-def print_ascii(seq):
+def print_ascii(seq, log = sys.stderr):
     """Print byte stream as ascii."""
     for b in seq:
-        sys.stderr.write(chr(b))
+        log.write(chr(b))
 
-def print_hex(seq, count_init = 0):
+def print_hex(seq, count_init = 0, log = sys.stderr):
     """Print byte stream as hex."""
     count = count_init
     for b in seq:
         if 0 == (count % 16):
-            sys.stderr.write("\n%08X " % count)
-        sys.stderr.write("%02X " % b)
-        sys.stderr.flush()
+            log.write("\n%08X " % count)
+        log.write("%02X " % b)
+        log.flush()
         count += 1
 
 
@@ -61,20 +61,20 @@ def saleae_raw():
 # Fully connected data dumpers.
 
 
-def dump_uart(channel):
+def dump_uart(channel=0, log=sys.stderr):
     uart = pyla.uart()
     gen = saleae_analyzer(uart)
     uart.set_channel(channel)
-    print_ascii(gen)
+    print_ascii(gen, log)
 
-def dump_syncser(clock=0, data=1):
+def dump_syncser(clock=0, data=1, log=sys.stderr):
     syncser = pyla.syncser()
     gen = saleae_analyzer(syncser)
     syncser.set_clock_channel(clock)
     syncser.set_data_channel(data)
     syncser.set_clock_edge(0)
-    print_hex(gen)
+    print_hex(gen,log)
 
-def dump_diff():
-    print_hex(saleae_analyzer(pyla.diff()))
+def dump_diff(log = sys.stderr):
+    print_hex(saleae_analyzer(pyla.diff()),log)
         

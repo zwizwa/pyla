@@ -1,5 +1,7 @@
 from PySide import QtGui, QtCore
 import sys
+import pyla
+import stream
 
 class console(QtGui.QTextEdit):
     """Console output log.  Can be connected to sys.stdout and/or sys.stderr."""
@@ -28,13 +30,15 @@ class pylag(QtGui.QWidget):
         super(pylag,self).__init__()
         self._app = app
         self.initUI()
+        pyla.register_poll(self.poll)
+        self._abort = False
 
     def initUI(self):
 
         # Replace stdout/stderr with console window.
         self._console = console(self,self.poll)
-        # sys.stdout = self._console
-        # sys.stderr = self._console
+        sys.stdout = self._console
+        sys.stderr = self._console
 
         # Panel / log splitter.
         splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
@@ -44,15 +48,18 @@ class pylag(QtGui.QWidget):
         self._vbox = vbox
 
 
-        def button(text, method):
+        def analyzer(text):
+            dumper = getattr(stream, text)
+            def action():
+                print("Starting %s" % text)
+                dumper()
             btn = QtGui.QPushButton(text,self)
-            btn.clicked.connect(method)
+            btn.clicked.connect(action)
             splitter.addWidget(btn)
             return btn
 
-        # TOP: control buttons
-        button("Start", self.start)
-        button("Stop",  self.stop)
+        analyzer("dump_uart")
+        analyzer("dump_syncser")
 
         splitter.addWidget(self._console)
 

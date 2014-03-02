@@ -54,6 +54,11 @@ compose_op_op  = r.wrap(pylacore.compose_op_op)
 process = pylacore.process
 read    = pylacore.read
 
+
+_poll = []
+def register_poll(method):
+    _poll.append(method)
+
 # special
 def devices():
     devices = []
@@ -67,6 +72,8 @@ def devices():
 # FIXME: later use condition variables
 def read_blocking(buf):
     while 1:
+        for method in _poll:
+            method()
         out = bytes(pylacore.read(buf))
         if (len(out)):
             return out
