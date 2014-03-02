@@ -7,6 +7,7 @@ def print_ascii(seq, log = sys.stderr):
     """Print byte stream as ascii."""
     for b in seq:
         log.write(chr(b))
+        log.flush()
 
 def print_hex(seq, count_init = 0, log = sys.stderr):
     """Print byte stream as hex."""
@@ -61,19 +62,19 @@ def saleae_raw():
 # Fully connected data dumpers.
 
 
-def dump_uart(channel=0, log=sys.stderr):
+def dump_uart(channel=0, log=sys.stderr, dump=print_hex):
     uart = pyla.uart()
     gen = saleae_analyzer(uart)
     uart.set_channel(channel)
-    print_ascii(gen, log=log)
+    dump(gen, log=log)
 
-def dump_syncser(clock=0, data=1, log=sys.stderr):
+def dump_syncser(clock=0, data=1, log=sys.stderr, dump=print_hex):
     syncser = pyla.syncser()
     gen = saleae_analyzer(syncser)
     syncser.set_clock_channel(clock)
     syncser.set_data_channel(data)
     syncser.set_clock_edge(0)
-    print_hex(gen,log=log)
+    dump(gen,log=log)
 
 def dump_diff(log = sys.stderr):
     print_hex(saleae_analyzer(pyla.diff()),log=log)
