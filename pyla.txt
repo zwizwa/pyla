@@ -139,3 +139,53 @@ Date: Sat Mar  1 23:33:10 CET 2014
 
 http://downloads.saleae.com/SDK/Saleae%20Device%20SDK.pdf
 http://downloads.saleae.com/SDK/SaleaeDeviceSdk-1.1.14.zip
+
+
+Entry: Mipmap
+Date: Sun Mar  2 19:38:59 CET 2014
+
+For waveform display, we need a "mipmap".  An interval mipmap would be
+best.  Per channel, there are only 3 values:
+
+low/high/both
+
+However it seems best to just use 2 bits to encode this to keep things
+simple.
+
+EDIT: 4th case = empty, since we round up to next 2^n
+
+The mipmap is bounded, as size divides by two per level.
+
+Encoding.  What about storing multiple channels in one machine word to
+make addressing simpler?  Let's stick to 32 bit words, giving 16
+channels of 2 bits.
+
+This is good as it makes computing the mipmap very simple: logic OR.
+
+Maybe this is fast enought to just rebuild everything on the fly?
+With a memory-mapped store it might be doable.
+This would keep the representation simple as well.
+
+Then, instead of using multiple channels, chop a channel up into
+multiple parts.
+
+There is also an interesting pattern in the address bits:
+
+0.....
+10....
+110...
+1110..
+11110.
+
+
+If the storage mapping is fixed (fixed maximum size), incremental
+updates are simple: round range to fit in between max/min power of two
+and recompute.
+
+Is a fixed buffer size a problem?
+
+Memory mapping should make access quite fast.
+
+
+
+
