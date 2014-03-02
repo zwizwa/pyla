@@ -18,6 +18,8 @@
 #define debug_tris_clock TRISBbits.TRISB1
 #define debug_tris_frame TRISBbits.TRISB2
 
+#define DEBUG_DELAY 0 // 100
+
 #if !defined(DEBUG_FRAMED)
 #define DEBUG_FRAMED 1
 #endif
@@ -33,7 +35,7 @@ static inline void debug_init(void) {
     }
 }
 static inline void debug_delay(void) {
-    volatile int delay = 100;
+    volatile int delay = DEBUG_DELAY;
     while(delay--);
 }
 static inline void debug_putbit(int bit) {
@@ -57,8 +59,34 @@ static inline void debug_putchar(unsigned char c) {
     }
     debug_set_frame(1);
 }
-static inline void debug_puts(const char *c) {
-    while(*c) {debug_putchar(*c++);}
+static inline void debug_cr_lf() {
     debug_putchar('\n');
     debug_putchar('\r');
+}
+static inline void debug_puts(const char *c) {
+    while(*c) {debug_putchar(*c++);}
+    debug_cr_lf();
+}
+
+const unsigned char hextable[] = "0123456789ABCDEF";
+static inline void debug_puthex_digit(unsigned char c) {
+  debug_putchar(hextable[c&0xF]);
+}
+static inline void debug_puthex(unsigned char c) {
+  debug_puthex_digit(c >> 4);
+  debug_puthex_digit(c);
+}
+static inline void debug_hexdump(unsigned char *buf, int size) {
+  int i;
+  for(i=0; i<size; i++) {
+    unsigned char *c = buf + i;
+    if(0 == (i & 0xF)) {
+      debug_puthex(((unsigned int)c) >> 8);
+      debug_puthex(((unsigned int)c) >> 0);
+      debug_putchar(' ');
+    }
+    debug_puthex(*c);
+    debug_putchar(' ');
+    if(0xF == (i & 0xF)) debug_cr_lf();
+  }
 }

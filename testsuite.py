@@ -62,7 +62,7 @@ def test_saleae():
 # test_saleae_syncser()
 # dump_diff()
 
-dump_syncser(frame=2,dump=print_ascii)
+dump_syncser(frame=2,dump=print_hex)
 
 
 

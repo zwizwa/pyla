@@ -29,7 +29,7 @@ static void _start() {
   static int global_init;
   if (!_device_map_mutex) {
     _device_map_mutex = new mutex();
-    LOG("saleae:BeginConnect\n");
+    LOG("salea.cpp:BeginConnect\n");
     DevicesManagerInterface::RegisterOnConnect( &OnConnect );
     DevicesManagerInterface::RegisterOnDisconnect( &OnDisconnect );
     DevicesManagerInterface::BeginConnect();
@@ -63,7 +63,7 @@ static saleae *_find(U64 device_id) {
 
 
 void saleae::disconnect_sinks() {
-  LOG("saleae:disconnect_sinks()\n");
+  LOG("salea.cpp:disconnect_sinks()\n");
   _device_map_mutex->lock();
   int i, n = _device_map.size();
   for(i=0; i<n; i++) {
@@ -90,7 +90,7 @@ void __stdcall OnWriteData( U64 device_id, U8* data, U32 data_length, void* user
     /* Not used */
 }
 void __stdcall OnError( U64 device_id, void* user_data ) {
-  LOG("saleae:ERROR\n");
+  LOG("salea.cpp:ERROR\n");
   _find(device_id)->on_error();
 }
 void __stdcall OnDisconnect( U64 device_id, void* user_data ) {
@@ -98,7 +98,7 @@ void __stdcall OnDisconnect( U64 device_id, void* user_data ) {
 }
 void __stdcall OnConnect( U64 device_id, GenericInterface* device_interface, void* user_data ) {
   if( dynamic_cast<LogicInterface*>( device_interface ) != NULL ) {
-    LOG("saleae:Connect %08X\n", device_id);
+    LOG("salea.cpp:Connect %08X\n", device_id);
     LogicInterface *i = (LogicInterface*)device_interface;
 
     saleae *dev = _register(device_id, i);
@@ -108,7 +108,7 @@ void __stdcall OnConnect( U64 device_id, GenericInterface* device_interface, voi
     i->RegisterOnError( &OnError );
     double sr = dev->get_samplerate();
     i->SetSampleRateHz( sr );
-    LOG("saleae:Start %08X at %.3f MHz\n", device_id, sr/1000000);
+    LOG("salea.cpp:Start %08X at %.3f MHz\n", device_id, sr/1000000);
     i->ReadStart();
   }
 }
@@ -126,7 +126,7 @@ saleae::saleae(U64 device_id, GenericInterface* device_interface) :
 }
 saleae::~saleae() {
   // Tear down the callback before deleting any instances.
-  LOG("saleae:~saleae()\n");
+  LOG("salea.cpp:~saleae()\n");
 }
 
 double saleae::get_samplerate() {
@@ -136,7 +136,7 @@ void saleae::set_samplerate_hint(double sr) {
   _samplerate = sr;
 }
 void saleae::connect_sink(sink *s) {
-  LOG("saleae:%08X->connect_sink(<%p>)\n", _device_id, s);
+  LOG("salea.cpp:%08X->connect_sink(<%p>)\n", _device_id, s);
   _sink_mutex.lock();
   _sink = s;
   _sink_mutex.unlock();
