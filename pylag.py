@@ -19,7 +19,7 @@ class console(QtGui.QTextEdit):
     def write(self, bs):
         self._stdout.write(bs)
         self.insertPlainText(bs)
-        self.ensureCursorVisible()
+        # self.ensureCursorVisible()
         self._poll()
 
 
@@ -48,11 +48,15 @@ class pylag(QtGui.QWidget):
         self._vbox = vbox
 
 
+        # FIXME: break recursion.
         def analyzer(text):
             dumper = getattr(stream, text)
             def action():
                 print("Starting %s" % text)
-                dumper()
+                try:
+                    dumper(log=self._console)
+                except Exception as e:
+                    print(e)
             btn = QtGui.QPushButton(text,self)
             btn.clicked.connect(action)
             splitter.addWidget(btn)

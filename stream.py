@@ -65,7 +65,7 @@ def dump_uart(channel=0, log=sys.stderr):
     uart = pyla.uart()
     gen = saleae_analyzer(uart)
     uart.set_channel(channel)
-    print_ascii(gen, log)
+    print_ascii(gen, log=log)
 
 def dump_syncser(clock=0, data=1, log=sys.stderr):
     syncser = pyla.syncser()
@@ -73,8 +73,8 @@ def dump_syncser(clock=0, data=1, log=sys.stderr):
     syncser.set_clock_channel(clock)
     syncser.set_data_channel(data)
     syncser.set_clock_edge(0)
-    print_hex(gen,log)
+    print_hex(gen,log=log)
 
 def dump_diff(log = sys.stderr):
-    print_hex(saleae_analyzer(pyla.diff()),log)
+    print_hex(saleae_analyzer(pyla.diff()),log=log)
         
