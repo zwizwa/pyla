@@ -29,11 +29,11 @@ static void _start() {
   static int global_init;
   if (!_device_map_mutex) {
     _device_map_mutex = new mutex();
-    LOG("salea.cpp:BeginConnect\n");
     DevicesManagerInterface::RegisterOnConnect( &OnConnect );
     DevicesManagerInterface::RegisterOnDisconnect( &OnDisconnect );
     DevicesManagerInterface::BeginConnect();
     global_init = 1;
+    LOG("salea.cpp:BeginConnect (waiting for Connect)\n");
   }
 }
 

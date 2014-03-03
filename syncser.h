@@ -12,10 +12,12 @@ class syncser : public frontend {
   virtual void reset();
   void set_samplerate(double sr) {} // clocked, so not necessary
 
-  void set_clock_edge(int e)    { _clock_edge = e; }
-  void set_clock_channel(int c) { _clock_channel = c; }
-  void set_data_channel(int c)  { _data_channel = c; }
-  void set_frame_channel(int c) { _frame_channel = c; }
+  void set_clock_edge(int e)     { _clock_edge = e; }
+  void set_clock_channel(int c)  { _clock_channel = c; }
+  void set_clock_polarity(int p) { _clock_polarity = p; }
+  void set_data_channel(int c)   { _data_channel = c; }
+  void set_frame_channel(int c)  { _frame_channel = c; }
+  void set_frame_active(int a)   { _frame_active = a; }
 
  private:
   /* config */

@@ -68,14 +68,22 @@ def dump_uart(channel=0, log=sys.stderr, dump=print_hex):
     uart.set_channel(channel)
     dump(gen, log=log)
 
-def dump_syncser(clock=0, data=1, frame=-1, log=sys.stderr, dump=print_hex):
+def apply_config(obj, config):
+    print("config: %s" % obj)
+    if config:
+        for (key, val) in config.items():
+            try:
+                print("config: %s=%d" % (key, val))
+                getattr(obj, 'set_' + key)(val)
+            except Exception as e:
+                print("WARNING: set_%s not defined: %s" % (key, e))
+    return obj
+
+def dump_syncser(config={}, log=sys.stderr, dump=print_hex):
     syncser = pyla.syncser()
+    apply_config(syncser, config)
     gen = saleae_analyzer(syncser)
-    syncser.set_clock_channel(clock)
-    syncser.set_data_channel(data)
-    syncser.set_frame_channel(frame)
-    syncser.set_clock_edge(0)
-    dump(gen,log=log)
+    dump(gen, log=log)
 
 def dump_diff(log = sys.stderr):
     print_hex(saleae_analyzer(pyla.diff()),log=log)

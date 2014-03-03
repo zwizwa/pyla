@@ -58,11 +58,23 @@ def test_saleae():
 # test_uart()
 # test_saleae()
 # dump_uart(0)
-# dump_syncser()
+
+
+# DUMP SPI as ASCII
+dump_syncser(
+    config={'frame_channel'  : 2,
+            'clock_channel'  : 0,
+            'data_channel'   : 1,
+            'clock_edge'     : 1,  # sampling edge: 0->1
+            'clock_polarity' : 0,  # clock idle polarity
+            'frame_active'   : 0},
+    dump=print_hex)
+
+
 # test_saleae_syncser()
 # dump_diff()
 
-dump_syncser(frame=2,dump=print_hex)
+# dump_syncser(frame=2,dump=print_hex)
 
 
 
