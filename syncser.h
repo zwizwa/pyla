@@ -23,6 +23,8 @@ class syncser : public frontend {
   int _data_channel;
   int _frame_channel;
   int _clock_edge;
+  int _clock_polarity;
+  int _frame_active;
 
   /* state */
   unsigned int _shift_count;

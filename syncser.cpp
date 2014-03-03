@@ -1,16 +1,18 @@
 #include "syncser.h"
 
 syncser::syncser() {
-  _clock_channel = 0;
-  _data_channel  = 1;
-  _frame_channel = -1; // disabled
-  _clock_edge    = 1;  // postive edge triggering
+  _clock_channel  = 0;
+  _data_channel   = 1;
+  _frame_channel  = -1; // disabled
+  _clock_edge     = 1;  // postive edge triggering
+  _clock_polarity = 0;
+  _frame_active   = 0;
   reset();
 };
 
 void syncser::reset() {
-  _clock_state = 0; // FIXME: hardcoded at clock polarity 0
-  _frame_state = 1; // (C)
+  _clock_state = _clock_polarity;
+  _frame_state = _frame_active ^ 1;
   _shift_count = 0;
   _shift_reg = 0;
 }
@@ -18,33 +20,42 @@ void syncser::reset() {
 void syncser::process(chunk& output, chunk& input) {
   int i, i_size = input.size();
   for (i=0; i<i_size; i++) {
-    if (_frame_channel >= 0) {
-      int frame_bit = (input[i] >> _frame_channel) & 1;
-      if (frame_bit != _frame_state) {
-        // reset on transition
-        _shift_reg = 0;
-        _shift_count = 0;
-        _frame_state = frame_bit;
-      }
-      // ignore clock / data unless frame bit asserted
-      if (frame_bit != 0) continue;
-    }
-
     int clock_bit = (input[i] >> _clock_channel) & 1;
+    int frame_bit = (input[i] >> _frame_channel) & 1;
     int data_bit  = (input[i] >> _data_channel) & 1;
-    if (clock_bit != _clock_state) {
-      if (clock_bit == _clock_edge) {
-        _shift_reg <<= 1; // (A) 
-        _shift_reg |= data_bit;
-        _shift_count++;
-        if (_shift_count == 8) { // (B)
-          output.push_back(_shift_reg);
+
+    /* Frame edge */
+    if (_frame_channel >= 0) { // framing enabled
+      if (frame_bit != _frame_state) { // transition
+        if (frame_bit == _frame_active) {
+          // reset shift register
           _shift_reg = 0;
           _shift_count = 0;
         }
       }
-      _clock_state = clock_bit;
     }
+
+    /* Shift in data on sampling clock edge. */
+    if ((_frame_channel < 0) | // ignore framing or
+        (frame_bit == _frame_active)) { // frame active
+      if (clock_bit != _clock_state) {  // transition
+        if (clock_bit == _clock_edge) { // sampling edge
+          _shift_reg <<= 1; // (A) 
+          _shift_reg |= data_bit;
+          _shift_count++;
+          if (_shift_count == 8) { // (B)
+            output.push_back(_shift_reg);
+            // reset shift register
+            _shift_reg = 0;
+            _shift_count = 0;
+          }
+        }
+      }
+    }
+
+    /* Edge detector state */
+    _clock_state = clock_bit;
+    _frame_state = frame_bit;
   }
 }
 
@@ -54,7 +65,6 @@ void syncser::process(chunk& output, chunk& input) {
    (B) For word-oriented streams, it might be good to shift in full
        words, then allow endianness config in the output stream.
    
-   (C) Frame sync / chip select hardcoded at active low.
 */
 
 

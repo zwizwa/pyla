@@ -189,3 +189,11 @@ Memory mapping should make access quite fast.
 
 
 
+Entry: syncser
+Date: Mon Mar  3 10:52:23 CET 2014
+
+Problem..  Make a test case using data captured from dsPIC.
+
+
+
+
