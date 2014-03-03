@@ -28,6 +28,19 @@ ExternalProject_Add(SaleaeDeviceSdk
 INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/SaleaeDeviceSdk-prefix/src/SaleaeDeviceSdk/include)
 
 SET(SALEADEVICESDK_LIB ${CMAKE_BINARY_DIR}/SaleaeDeviceSdk-prefix/src/SaleaeDeviceSdk/lib/)
+
+if(WIN32)
+  SET(SALEADEVICE_LIBRARY ${SALEADEVICESDK_LIB}/libSaleaeDevice.dylib)
+else(WIN32)
+  if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    SET(SALEADEVICE_LIBRARY ${SALEADEVICESDK_LIB}/libSaleaeDevice64.so)
+  else()
+    SET(SALEADEVICE_LIBRARY ${SALEADEVICESDK_LIB}/libSaleaeDevice.so)
+  endif()
+endif(WIN32)
+
+
+# CMAKE_CXX_LIBRARY_ARCHITECTURE=x86_64-linux-gnu
 SET(SALEADEVICE_LIBRARY ${SALEADEVICESDK_LIB}/libSaleaeDevice64.so) #FIXME
 
 SWIG_LINK_LIBRARIES(pylacore

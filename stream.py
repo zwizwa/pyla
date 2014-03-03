@@ -34,10 +34,21 @@ def filter_diff(seq):
             yield(b)
         last_b = b
 
+def apply_config(obj, config):
+    """Apply config dict as set_ methods."""
+    print("config: %s" % obj)
+    if config:
+        for (key, val) in config.items():
+            try:
+                print("config: %s=%d" % (key, val))
+                getattr(obj, 'set_' + key)(val)
+            except Exception as e:
+                print("WARNING: set_%s not defined: %s" % (key, e))
+    return obj
 
-
-def saleae_analyzer(op):
-    """Combine saleae, analyzer, buffer to make a python sequence."""
+def saleae_with(op, config=None):
+    """Combine saleae, analyzer+config, buffer to make a python sequence."""
+    apply_config(op, config)
     saleae = pyla.devices()[0]
     buf = pyla.memory()
 
@@ -46,6 +57,7 @@ def saleae_analyzer(op):
     # buf (buffer is also a source).
 
     buf_op = pyla.compose_snk_op(buf, op)
+
     saleae.connect_sink(buf_op)
     return buf_gen(buf)
 
@@ -68,23 +80,5 @@ def dump_uart(channel=0, log=sys.stderr, dump=print_hex):
     uart.set_channel(channel)
     dump(gen, log=log)
 
-def apply_config(obj, config):
-    print("config: %s" % obj)
-    if config:
-        for (key, val) in config.items():
-            try:
-                print("config: %s=%d" % (key, val))
-                getattr(obj, 'set_' + key)(val)
-            except Exception as e:
-                print("WARNING: set_%s not defined: %s" % (key, e))
-    return obj
 
-def dump_syncser(config={}, log=sys.stderr, dump=print_hex):
-    syncser = pyla.syncser()
-    apply_config(syncser, config)
-    gen = saleae_analyzer(syncser)
-    dump(gen, log=log)
 
-def dump_diff(log = sys.stderr):
-    print_hex(saleae_analyzer(pyla.diff()),log=log)
-        
