@@ -143,6 +143,10 @@ void file::write(chunk& input) {
   memcpy(_buf + _write_index, &input[0], chunk_size);
   _write_index += chunk_size;
 }
+
+
+// FIXME: just read max chunk size
+// or is it possible to create a vector with different underlying store?
 void file::read(chunk& output) {
   int chunk_size = output.size();
   if (chunk_size > _write_index - _read_index) {

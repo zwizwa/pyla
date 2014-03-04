@@ -7,7 +7,7 @@
    with clock frequencies. */
 
 // Put your component here.
-#include <p33FJ128GP802.h>   
+#include <p33FJ128GP804.h>   
 
 // I/O pins
 #define debug_data       LATBbits.LATB0
