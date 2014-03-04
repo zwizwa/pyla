@@ -25,6 +25,8 @@ void syncser::process(chunk& output, chunk& input) {
     int data_bit  = (input[i] >> _data_channel) & 1;
 
     /* Frame edge */
+    // FIXME: this should wait to do anything if it starts in the
+    // middle of a frame.
     if (_frame_channel >= 0) { // framing enabled
       if (frame_bit != _frame_state) { // transition
         if (frame_bit == _frame_active) {

@@ -1,4 +1,5 @@
 import pyla
+import pylacore
 from tools import *
 import time
 import sys
@@ -53,7 +54,36 @@ def test_saleae():
 
 
 
+def test_file():
+    b = bytes(list(range(256)))
+    b = b + b
+    b = b + b
+    b = b + b
+    b = b + b
+    b = b + b
+    n = 120000000
+    print("create")
+    buf = pylacore.file("/tmp/pyla.bin", n)
+    print("clear")
+    buf.clear()
+    print("write")
+    for x in range(1 + int(n/len(b))):
+        pylacore.write(buf, b)
+
+    print("read")
+    for x in range(1 + int(n/len(b))):
+        b_ = pylacore.read(buf, len(b))
+        # print(len(b_))
+    print("done")
+
+    
+        
+    
+
+
+
 
 
 test_uart()
-test_saleae()
+# test_saleae()
+test_file()

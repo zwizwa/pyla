@@ -13,6 +13,7 @@
 #include <vector>
 #include <list>
 #include <mutex.h>
+#include <stdint.h>
 
 /* INTERFACES */
 
@@ -133,6 +134,8 @@ class compose_op_op : public operation {
 };
 
 /* TOOLS */
+
+// Everything disappears
 class blackhole : public buffer {
  public:
   void read(chunk&);
@@ -140,6 +143,7 @@ class blackhole : public buffer {
   ~blackhole();
 };
 
+// Temporary buffer in memory
 class memory : public buffer { 
  public:
   memory();
@@ -151,9 +155,27 @@ class memory : public buffer {
   mutex _mutex;
 };
 
+// File-backed circular buffer
+class file : public buffer { 
+ public:
+  file(const char *filename, uint64_t size);
+  void read(chunk&);
+  void write(chunk&);
+  void clear();
+  ~file();
+ private:
+  FILE *_store;
+  uint8_t *_buf;
+  uint64_t _read_index;
+  uint64_t _write_index;
+  uint64_t _size;
+};
+
+
 /* Wrapper functions for Python to work around pass-by-reference for
    the chunk type. */
 chunk process(operation *, chunk);
-chunk read(source *);
+chunk read(source *, uint64_t);
+void write(sink *, chunk);
 
 #endif // _PYLACORE_H

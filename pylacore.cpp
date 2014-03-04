@@ -1,5 +1,10 @@
 #include "pylacore.h"
 #include <iostream>
+#include <stdio.h>
+#include <string.h>
+
+#include <sys/mman.h> // windows?
+#include <fcntl.h>
 
 /* Wrapper functions for Python to work around pass-by-reference. */
 chunk process(operation *op, chunk input) {
@@ -7,10 +12,14 @@ chunk process(operation *op, chunk input) {
   op->process(output, input);
   return output;
 }
-chunk read(source *src) {
+chunk read(source *src, uint64_t size) {
   chunk output;
+  output.resize(size);
   src->read(output);
   return output;
+}
+void write(sink *snk, chunk input) {
+  snk->write(input);
 }
 
 
@@ -88,5 +97,61 @@ void memory::read(chunk& output) {
 memory::~memory() {
 }
 
+// http://mentablog.soliveirajr.com/2012/12/asynchronous-logging-versus-memory-mapped-files/
 
+// http://stackoverflow.com/questions/1201261/what-is-the-fastest-method-for-high-performance-sequential-file-i-o-in-c
 
+file::file(const char *filename, uint64_t size) {
+  char c = 0;
+  _write_index = _read_index = 0;
+  _size = size;
+  _store = fopen(filename, "w+");
+  if (!_store) {
+    LOG("Can't open file %s\n", filename);
+    throw filename;
+  }
+  uint8_t sum;
+
+  fseek(_store, _size-1, SEEK_SET);
+  fwrite(&c, 1, 1, _store); // write a single byte to set size
+  fseek(_store, 0, SEEK_CUR);
+  
+
+  int fd = fileno(_store);
+  _buf = (uint8_t *)mmap(0, _size,
+                         PROT_READ | PROT_WRITE,
+                         MAP_SHARED, fd, 0);
+
+  // for (int i = 0; i < size; i++) sum += _buf[i];
+  // _buf[0] = sum;
+  posix_fadvise(fd, 0, _size, 
+                POSIX_FADV_SEQUENTIAL |
+                POSIX_FADV_NOREUSE);
+  // madvise( MADV_MERGEABLE )
+                
+}
+file::~file() {
+  munmap(_buf, _size);
+  fclose(_store);
+}
+void file::write(chunk& input) {
+  int chunk_size = input.size();
+  if (chunk_size > _size - _write_index) {
+    LOG("WARNING: buffer overflow\n");
+    chunk_size = _size - _write_index;
+  }
+  memcpy(_buf + _write_index, &input[0], chunk_size);
+  _write_index += chunk_size;
+}
+void file::read(chunk& output) {
+  int chunk_size = output.size();
+  if (chunk_size > _write_index - _read_index) {
+    chunk_size = _write_index - _read_index;
+    output.resize(chunk_size);
+  }
+  memcpy(&output[0], _buf + _read_index, chunk_size);
+  _read_index += chunk_size;
+}
+void file::clear() {
+  bzero(_buf, _size);
+}

@@ -6,6 +6,7 @@ from stream import *
 def saleae_spi():
     return saleae_with(
         syncser(),
+        buftype=['file','/tmp/pyla.bin',1000000],
         config={
             'clock_channel'  : 0,
             'data_channel'   : 1,
@@ -24,7 +25,7 @@ def saleae_uart():
         })
     
 
-# print_hex(saleae_spi())
-print_ascii(saleae_uart())
+print_hex(saleae_spi())
+# print_ascii(saleae_uart())
 
 

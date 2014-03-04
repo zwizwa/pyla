@@ -197,3 +197,26 @@ Problem..  Make a test case using data captured from dsPIC.
 
 
 
+Entry: mipmapping
+Date: Mon Mar  3 20:07:48 CET 2014
+
+What problem am I solving?  Waveform display while capturing.  So
+incremental update is important.  Data representation is naturally
+incremental / idempotent.
+
+To use circular buffers, the idempotent part is no longer satisfied,
+so a chunk needs to be zeroed out.  This is possible by not expanding
+all levels to the very end, i.e. keep say 1000 samples at the coarsest
+level = +- nb pixels in a window = maximal zoom out. 
+
+
+Does it make sense to work with data sets the size of a harddrive, say
+terabytes?  That's in the order of 1M seconds, which is in the order
+of two weeks.
+
+I guess.  The mip-mapped data structure is a direct representation of
+what a user sees.  Access should be instantaneous for all zoom levels,
+meaning per zoom level.
+
+
+

@@ -1,6 +1,7 @@
 %module pylacore
 %include "std_string.i"
 %include "std_vector.i"
+%include "stdint.i"
 %{
 #include "pylacore.h"
 #include "uart.h"

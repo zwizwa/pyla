@@ -46,6 +46,7 @@ uart           = r.wrap(pylacore.uart)
 diff           = r.wrap(pylacore.diff)
 blackhole      = r.wrap(pylacore.blackhole)
 memory         = r.wrap(pylacore.memory)
+file           = r.wrap(pylacore.file)
 compose_snk_op = r.wrap(pylacore.compose_snk_op)
 compose_op_src = r.wrap(pylacore.compose_op_src)
 compose_op_op  = r.wrap(pylacore.compose_op_op)
@@ -74,7 +75,7 @@ def read_blocking(buf):
     while 1:
         for method in _poll:
             method()
-        out = bytes(pylacore.read(buf))
+        out = bytes(pylacore.read(buf, 128*1024))
         if (len(out)):
             return out
         else:
