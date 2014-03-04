@@ -112,10 +112,10 @@ file::file(const char *filename, uint64_t size) {
   }
   uint8_t sum;
 
-  fseek(_store, _size-1, SEEK_SET);
-  fwrite(&c, 1, 1, _store); // write a single byte to set size
-  fseek(_store, 0, SEEK_CUR);
-  
+  //// This can be done lazily.  See read()
+  //fseek(_store, _size-1, SEEK_SET);
+  //fwrite(&c, 1, 1, _store); // write a single byte to set size
+  //fseek(_store, 0, SEEK_CUR);
 
   int fd = fileno(_store);
   _buf = (uint8_t *)mmap(0, _size,
@@ -140,7 +140,9 @@ void file::write(chunk& input) {
     LOG("WARNING: buffer overflow\n");
     chunk_size = _size - _write_index;
   }
-  memcpy(_buf + _write_index, &input[0], chunk_size);
+  //// use fwrite instead of memcpy to grow buffer incrementally.
+  // memcpy(_buf + _write_index, &input[0], chunk_size);
+  fwrite(&input[0], 1, chunk_size, _store);
   _write_index += chunk_size;
 }
 
@@ -153,6 +155,7 @@ void file::read(chunk& output) {
     chunk_size = _write_index - _read_index;
     output.resize(chunk_size);
   }
+  fflush(_store); // make sure data hits the disk before reading it
   memcpy(&output[0], _buf + _read_index, chunk_size);
   _read_index += chunk_size;
 }
