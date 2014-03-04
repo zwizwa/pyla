@@ -75,7 +75,7 @@ def read_blocking(buf):
     while 1:
         for method in _poll:
             method()
-        out = bytes(pylacore.read(buf, 128*1024))
+        out = bytes(pylacore.read(buf))
         if (len(out)):
             return out
         else:

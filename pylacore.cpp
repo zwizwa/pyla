@@ -12,9 +12,8 @@ chunk process(operation *op, chunk input) {
   op->process(output, input);
   return output;
 }
-chunk read(source *src, uint64_t size) {
+chunk read(source *src) {
   chunk output;
-  output.resize(size);
   src->read(output);
   return output;
 }
@@ -150,11 +149,8 @@ void file::write(chunk& input) {
 // FIXME: just read max chunk size
 // or is it possible to create a vector with different underlying store?
 void file::read(chunk& output) {
-  int chunk_size = output.size();
-  if (chunk_size > _write_index - _read_index) {
-    chunk_size = _write_index - _read_index;
-    output.resize(chunk_size);
-  }
+  uint64_t chunk_size = _write_index - _read_index;
+  output.resize(chunk_size);
   fflush(_store); // make sure data hits the disk before reading it
   memcpy(&output[0], _buf + _read_index, chunk_size);
   _read_index += chunk_size;
