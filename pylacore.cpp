@@ -148,6 +148,7 @@ void file::write(chunk& input) {
 
 // FIXME: just read max chunk size
 // or is it possible to create a vector with different underlying store?
+// http://stackoverflow.com/questions/14807192/c-can-i-create-a-stdvector-to-manage-an-array-of-elements-specific-known-add
 void file::read(chunk& output) {
   uint64_t chunk_size = _write_index - _read_index;
   output.resize(chunk_size);

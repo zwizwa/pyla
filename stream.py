@@ -58,6 +58,9 @@ def saleae_with(op, config=None, buftype=['memory']):
 
     buf_op = pyla.compose_snk_op(buf, op)
 
+    # FIXME: Add possibility for difference encoding frontend?
+    # buf_op = pyla.compose_snk_op(buf_op, pyla.diff())
+    
     saleae.connect_sink(buf_op)
     return buf_gen(buf)
 
