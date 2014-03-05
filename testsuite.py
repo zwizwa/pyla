@@ -54,31 +54,32 @@ def test_saleae():
 
 
 
-def test_file():
+def test_buf(buf):
     b = bytes(list(range(256)))
-    b = b + b
-    b = b + b
-    b = b + b
-    b = b + b
-    b = b + b
-    n = 120000000
-    print("create")
-    buf = pylacore.file("/tmp/pyla.bin", n)
-    print("clear")
-    buf.clear()
+    n = 1200000
     print("write")
     for x in range(1 + int(n/len(b))):
         pylacore.write(buf, b)
 
     print("read")
-    for x in range(1 + int(n/len(b))):
-        b_ = pylacore.read(buf, len(b))
-        # print(len(b_))
+    b_ = [1]
+    while len(b_) > 0:
+        b_ = pylacore.read(buf)
+        print(len(b_))
     print("done")
 
-    
+def test_pyla_memmap():
+    print("test pila.memmap")
+    buf = pylacore.memmap("/tmp/pyla.memmap.bin", 1200000)
+    test_buf(buf)
+
+def test_pyla_file():
+    print("test pila.file")
+    buf = pylacore.file("/tmp/pyla.file.bin")
+    test_buf(buf)
+
         
-    
+
 
 
 
@@ -86,4 +87,5 @@ def test_file():
 
 test_uart()
 # test_saleae()
-test_file()
+test_pyla_memmap()
+test_pyla_file()
