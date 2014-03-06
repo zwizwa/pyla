@@ -93,12 +93,12 @@ shared_compose_snk_op(boost::shared_ptr<sink> snk,
   return boost::shared_ptr<compose_snk_op>(new compose_snk_op(snk, op));
 }
 static inline boost::shared_ptr<compose_op_op>
-shared_compose_snk_op(boost::shared_ptr<operation> op1,
-                      boost::shared_ptr<operation> op2) {
+shared_compose_op_op(boost::shared_ptr<operation> op1,
+                     boost::shared_ptr<operation> op2) {
   return boost::shared_ptr<compose_op_op>(new compose_op_op(op1, op2));
 }
 static inline boost::shared_ptr<compose_op_src>
-shared_compose_snk_op(boost::shared_ptr<operation> op,
+shared_compose_op_src(boost::shared_ptr<operation> op,
                       boost::shared_ptr<source> src) {
   return boost::shared_ptr<compose_op_src>(new compose_op_src(op, src));
 }

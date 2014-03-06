@@ -19,8 +19,8 @@ memory         = pylacore.shared_memory
 file           = pylacore.shared_file
 
 compose_snk_op = pylacore.shared_compose_snk_op
-#compose_op_src = pylacore.shared_compose_op_src
-#compose_op_op  = pylacore.shared_compose_op_op
+compose_op_src = pylacore.shared_compose_op_src
+compose_op_op  = pylacore.shared_compose_op_op
 
 
 # functions
