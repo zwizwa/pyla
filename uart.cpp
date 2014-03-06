@@ -64,9 +64,9 @@ void uart::_set_state(enum sm_state s)
 { 
   _state = s;
   switch(_state) {
-  case sm_idle:   LOG("I"); break;
-  case sm_sample: LOG("S"); break;
-  case sm_break:  LOG("B"); break;
+  case sm_idle:   LOG("\n[I]"); break;
+  case sm_sample: LOG("\n[S]"); break;
+  case sm_break:  LOG("\n[B]"); break;
   }
 }
 
@@ -87,7 +87,7 @@ void uart::process(chunk& output, chunk& input) {
       _bits_data = 0;
       _bits_count = 0;
       _bits_parity = 0;
-      _delay = _clock_div + (_clock_div >> 1);
+      _delay = _clock_div + (_clock_div >> 1) - 1;
       break;
 
     case sm_break:
@@ -102,7 +102,7 @@ void uart::process(chunk& output, chunk& input) {
       else {
         if (_bits_count == _bit_stop) {
           if (!bit) {
-            LOG("F");
+            LOG("\n[F]");
             // _set_state(sm_break);  // FIXME: break condition not implemented
           }
           output.push_back(_bits_data);
@@ -110,18 +110,19 @@ void uart::process(chunk& output, chunk& input) {
         }
         else if (_bits_count == _bit_parity) {
           if (bit != _bits_parity) {
-            LOG("P");
+            LOG("\n[P]");
             // ignore it
           }
         }
         else { // DATA BIT
           // Store and and schedule next sample.
           // LOG("%c", bit ? 'x' : '_');
+          LOG("\n[%d]", bit);
           _bits_parity ^= bit;
           _bits_data |= (bit & 1) << _bits_count;
         }
         _bits_count++;
-        _delay = _clock_div;
+        _delay = _clock_div-1;
       }
       break;
 

@@ -21,7 +21,11 @@ def parity(bits):
         p ^= b
     return p
 
-def uart_frame(byte):
+def uart_frame_par(byte):
     l = list(number_bits(byte, 8))
     return [0] + l + [parity(l)] + [1]
+
+def uart_frame_nopar(byte):
+    l = list(number_bits(byte, 8))
+    return [0] + l + [1]
 

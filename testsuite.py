@@ -5,12 +5,11 @@ import time
 import sys
 from stream import *
 
-def check(cond, msg):
-    if not cond:
-        raise NameError(msg)
-    print("PASS: %s" % msg)
 
 
+def check(val, exp, msg):
+    if val != exp:
+        raise NameError(msg + ": %s != %s" % (val,exp))
 
 
 # UART
@@ -23,17 +22,21 @@ def test_uart():
     uart.set_samplerate(sr)
     uart.set_channel(0)
 
-    inbyte = 0x0F
-    idle = [1,1,1]
-    bits = idle + uart_frame(inbyte) + idle
-
-    ov_bytes = bytes(oversample(bits, ov))
-
-    output = uart.process(ov_bytes)
-
+    def test_byte(inbyte):
+        idle = [1,1,1]
+        bits = idle + uart_frame_nopar(inbyte) + idle
+        ov_bytes = bytes(oversample(bits, ov))
+        output = uart.process(ov_bytes)
+        check(list(output), [inbyte], "uart in-out")
+        
+    # FAILS?
+    for i in range(256):
+        test_byte(i)
+    # test_byte(0x55)
+    # test_byte(0x0F)
 
     # print(bytes(output))
-    check(output[0] == inbyte, "uart byte %02X" % inbyte)
+
 
 
                                
