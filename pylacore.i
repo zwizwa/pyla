@@ -34,6 +34,6 @@ namespace std {
 %include "pylacore.h"
 %include "uart.h"
 %include "syncser.h"
-%include "saleae.h"
 %include "shared.h"
+%include "saleae.h"
 

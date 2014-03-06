@@ -58,22 +58,6 @@ class buffer : public source, public sink {
 
 
 
-/* A data aquisition device or DAQ abstracts a physical device
-   implemented as a system callback / ISR.  It can deliver data to a
-   sink, and is therefore called a co-sink.
-
-   It is not the same as a source.  A source is a callable pull object
-   - not a callback framework.  A source can be made by combining a
-   DAQ and a buffer. */
-
-class cosink {
- public:
-  virtual void connect_sink(sink*) = 0;
-};
-
-/* There is no cosource - the thing that reads a source.
-   That would be your Python code. */
-
 
 
 /* A sampler is something that has a samplerate associated to its data stream.

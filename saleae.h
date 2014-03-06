@@ -1,7 +1,7 @@
 #ifndef _SALEAE_H
 #define _SALEAE_H
 
-#include "pylacore.h"
+#include "shared.h"
 #include <SaleaeDeviceApi.h>
 #include <vector>
 
@@ -9,7 +9,7 @@
 class saleae : public cosink, public sampler {
  public:
   /* cosink */
-  void connect_sink(sink*);
+  void connect_sink(boost::shared_ptr<sink>);
   
   /* sampler */
   double get_samplerate();
@@ -30,7 +30,7 @@ class saleae : public cosink, public sampler {
   U64 _device_id;
   GenericInterface* _device_interface;
   double _samplerate;
-  sink* _sink;
+  boost::shared_ptr<sink> _sink;
   mutex _sink_mutex;
 };
 

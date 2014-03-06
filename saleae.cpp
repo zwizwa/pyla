@@ -67,7 +67,7 @@ void saleae::disconnect_sinks() {
   _device_map_mutex->lock();
   int i, n = _device_map.size();
   for(i=0; i<n; i++) {
-    _device_map[i]->connect_sink(NULL);
+    _device_map[i]->connect_sink(boost::shared_ptr<sink>(new hole()));
   }
   _device_map_mutex->unlock();
 }
@@ -120,7 +120,7 @@ saleae::saleae(U64 device_id, GenericInterface* device_interface) :
   _device_id(device_id),
   _device_interface(device_interface),
   _samplerate(PYLA_DEFAULT_SAMPLERATE),
-  _sink(NULL)
+  _sink(boost::shared_ptr<sink>(new hole()))
 {
   _start();
 }
@@ -135,8 +135,8 @@ double saleae::get_samplerate() {
 void saleae::set_samplerate_hint(double sr) {
   _samplerate = sr;
 }
-void saleae::connect_sink(sink *s) {
-  LOG("salea.cpp:%08X->connect_sink(<%p>)\n", _device_id, s);
+void saleae::connect_sink(boost::shared_ptr<sink> s) {
+  LOG("salea.cpp:%08X->connect_sink()\n", _device_id);
   _sink_mutex.lock();
   _sink = s;
   _sink_mutex.unlock();
