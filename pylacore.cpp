@@ -111,18 +111,15 @@ file::file(const char *filename, uint64_t size) {
   }
   uint8_t sum;
 
-  //// This can be done lazily.  See read()
-  //fseek(_store, _size-1, SEEK_SET);
-  //fwrite(&c, 1, 1, _store); // write a single byte to set size
-  //fseek(_store, 0, SEEK_CUR);
+  fseek(_store, _size-1, SEEK_SET);
+  fwrite(&c, 1, 1, _store); // write a single byte to set size
+  fseek(_store, 0, SEEK_CUR);
 
   int fd = fileno(_store);
   _buf = (uint8_t *)mmap(0, _size,
                          PROT_READ | PROT_WRITE,
                          MAP_SHARED, fd, 0);
 
-  // for (int i = 0; i < size; i++) sum += _buf[i];
-  // _buf[0] = sum;
   posix_fadvise(fd, 0, _size, 
                 POSIX_FADV_SEQUENTIAL |
                 POSIX_FADV_NOREUSE);
@@ -139,9 +136,7 @@ void file::write(chunk& input) {
     LOG("WARNING: buffer overflow\n");
     chunk_size = _size - _write_index;
   }
-  //// use fwrite instead of memcpy to grow buffer incrementally.
-  // memcpy(_buf + _write_index, &input[0], chunk_size);
-  fwrite(&input[0], 1, chunk_size, _store);
+  memcpy(_buf + _write_index, &input[0], chunk_size);
   _write_index += chunk_size;
 }
 

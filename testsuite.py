@@ -68,14 +68,14 @@ def test_buf(buf):
         print(len(b_))
     print("done")
 
-def test_pyla_memmap():
-    print("test pila.memmap")
-    buf = pylacore.memmap("/tmp/pyla.memmap.bin", 1200000)
-    test_buf(buf)
+#def test_pyla_memmap():
+#    print("test pila.memmap")
+#    buf = pylacore.memmap("/tmp/pyla.memmap.bin", 1200000)
+#    test_buf(buf)
 
 def test_pyla_file():
     print("test pila.file")
-    buf = pylacore.file("/tmp/pyla.file.bin")
+    buf = pylacore.file("/tmp/pyla.file.bin", 12000000)
     test_buf(buf)
 
         
@@ -83,9 +83,11 @@ def test_pyla_file():
 
 
 
-
+print(dir(pylacore.make_uart()))
+exit()
 
 test_uart()
 # test_saleae()
-test_pyla_memmap()
+# test_pyla_memmap()
 test_pyla_file()
+

@@ -220,3 +220,42 @@ meaning per zoom level.
 
 
 
+Entry: Forth as a python DSL?
+Date: Thu Mar  6 00:14:14 CET 2014
+
+Mayb it fits in the dot chaining notation?
+
+dup.process(uart, config).swap.process(syncser, config2)
+1 -> 2 buffers
+
+
+Entry: new
+Date: Thu Mar  6 01:01:01 CET 2014
+
+So the problem is that objects that are constructed from python tend
+to be destructed from python.  Maybe best to manage construction as
+tied to the cosink?
+
+Basically I like the idea of memory management as it's done in lua:
+don't expose any pointers!
+
+So all evil is essentially created by:
+- storing a pointer in a cosink object
+- composing sinks
+
+What about adding static methods to the cosink object to connect
+stuff?  The objects could be left accessible from python to keep
+things flexible, but in order to connect anything to the cosink, they
+need to be created locally.  Is there a way to pass in a constructor?
+
+
+
+Entry: Compose kills it
+Date: Thu Mar  6 01:15:33 CET 2014
+
+I still want managed pointers.  The reason is that I'd like to keep
+object construction in Python.  Otherwise it's going to be a mess..
+
+So the only real option then is boost?
+
+

@@ -12,6 +12,7 @@
 
 #include <vector>
 #include <list>
+#include <memory>
 #include <mutex.h>
 #include <stdint.h>
 
@@ -172,10 +173,16 @@ class file : public buffer {
 };
 
 
+
 /* Wrapper functions for Python to work around pass-by-reference for
    the chunk type. */
 chunk process(operation *, chunk);
 chunk read(source *);
 void write(sink *, chunk);
 
+
+
+
 #endif // _PYLACORE_H
+
+

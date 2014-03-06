@@ -15,6 +15,7 @@ SWIG_ADD_MODULE(pylacore python pylacore.i
   uart.cpp
   saleae.cpp
   syncser.cpp
+  factory.cpp
 )
 
 include(ExternalProject)
