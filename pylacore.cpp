@@ -25,15 +25,15 @@ void write(sink *snk, chunk input) {
 
 /* Buffers */
 
-void blackhole::read(chunk& output) {
+void hole::read(chunk& output) {
   chunk empty; 
   output = empty;
 }
-void blackhole::write(chunk& input) {
+void hole::write(chunk& input) {
   std::cerr << "drop: " << input.size() << std::endl;
 }
-blackhole::~blackhole() {
-  LOG("~blackhole()\n");
+hole::~hole() {
+  LOG("~hole()\n");
 }
 
 

@@ -1,6 +1,0 @@
-- Python memory management isn't implemented properly.  There's a
-  "registry" workaround in pyla.py which is essentially a memory leak.
-  However, this doesn't work properly when the interpreter exits, so
-  you might see some error messages.  At the root of this is an
-  architecture problem that will be adressed at some point, but the
-  bug doesn't really get in the way of practical use.

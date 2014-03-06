@@ -78,7 +78,7 @@ wrap(uart)
 wrap(syncser)
 wrap(memory)
 wrap(diff)
-wrap(blackhole)
+wrap(hole)
 
 
 // multi-arg constructors are written out

@@ -107,11 +107,11 @@ public:
 /* TOOLS */
 
 // Everything disappears
-class blackhole : public buffer {
+class hole : public buffer {
  public:
   void read(chunk&);
   void write(chunk&);
-  ~blackhole();
+  ~hole();
 };
 
 // Temporary buffer in memory

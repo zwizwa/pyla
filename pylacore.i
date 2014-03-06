@@ -18,7 +18,7 @@
 %shared_ptr(sink)
 %shared_ptr(source)
 %shared_ptr(buffer)
-%shared_ptr(blackhole)
+%shared_ptr(hole)
 %shared_ptr(memory)
 %shared_ptr(file)
 %shared_ptr(compose_op_op)
