@@ -22,30 +22,6 @@ void write(sink *snk, chunk input) {
 }
 
 
-/* Composition */
-compose_op_src :: compose_op_src(operation* op, source* src) : _op(op), _src(src) { }
-compose_op_src :: ~compose_op_src() { LOG("~compose_op_src()\n"); }
-void compose_op_src :: read(chunk& output) {
-  chunk input;
-  _src->read(input);
-  while(!input.empty()) {
-    _op->process(output, input);
-    input.clear();
-    _src->read(input);
-  }
-}
-
-
-compose_op_op :: compose_op_op(operation *op1, operation *op2)
-  : _op1(op1), _op2(op2) { }
-compose_op_op :: ~compose_op_op() { LOG("~compose_op_op()\n"); }
-void compose_op_op :: process(chunk& output, chunk& input) {
-  chunk tmp;
-  _op1->process(tmp, input);
-  _op1->process(output, tmp);
-}
-
-
 
 /* Buffers */
 

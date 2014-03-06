@@ -103,26 +103,6 @@ public:
 
 
 
-/* COMPOSITION */
-class compose_op_src : public source {
- public:
-  compose_op_src(operation* op, source* src);
-  ~compose_op_src();
-  void read(chunk& output);
- private:
-  operation* _op;
-  source* _src;
-};
-
-class compose_op_op : public operation {
- public:
-  compose_op_op(operation* op1, operation* op2);
-  ~compose_op_op();
-  void process(chunk& output, chunk& input);
- private:
-  operation* _op1;
-  operation* _op2;
-};
 
 /* TOOLS */
 
