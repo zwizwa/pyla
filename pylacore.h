@@ -22,22 +22,10 @@
    tool.  Let's assume you know what your data means. */
 typedef std::vector<unsigned char> chunk;
 
-#if 0 // not a good idea because of operator& used in memcpy
-class vector_chunk {
- public:
-  vector_chunk(uint64_t size) : _v(std::vector<unsigned char>(size)) {}
-  vector_chunk() : _v(std::vector<unsigned char>()) {}
-  unsigned char operator[](uint64_t i) { return _v[i]; }
 
-  bool empty() { return _v.empty(); }
-  void clear() { return _v.clear(); }
-  uint64_t size() { return _v.size(); }
-
- private:
-  std::vector<unsigned char> _v;
-};
-#endif
-
+/* Note that operation, source, sink has a different API in python,
+   C++ uses in-place operation (references),  f (in, out)
+   Python uses a   out = f ( in ) style */
 
 /* Externally triggered data processor. */
 class operation {

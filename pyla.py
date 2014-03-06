@@ -9,21 +9,30 @@ import time
 import re
 
 
-# classes
 
-
-# For each object constructed, allow some patching.  The C++ code uses
-# in-place operations on chunk references.  Python API uses a
-# functional y = f(x) API.
-
+# Here the make_shared_ wrapped C++ constructors get wrapped again to
+# produce objects with additional functionality.
 
 class io_wrapper:
-    def __init__(self, cons):
-        self._cons = cons
+    def __init__(self, ob):
+        self._ob = ob
+    def __getattr__(self, attr):
+        return getattr(self._ob, attr)
 
-    def __call__(self, *args):
-        ob = self._cons(*args)
-        return ob
+    # Just override process and read to present a different API in
+    # python.  E.g.  process(in,out)  =>  out = process(in)
+
+    def process(self, inbuf):
+        return pylacore.process(self._ob, inbuf)
+
+    def read(self):
+        return pylacore.read(self._ob)
+    
+def io_wrapper_factory(cons):
+    def new_cons(*args):
+        return io_wrapper(cons(*args))
+    return new_cons
+
 
 
 # The make_shared_ functions are wrappers around the base objects,
@@ -37,20 +46,13 @@ for attrib in dir(pylacore):
     match = re.match("make_shared_(.*)", attrib)
     pyla = globals()
     if match:
-        name = match.group(1)
-        shared_name = match.group(0)
-        print("pyla.%s = pylacore.%s" % (name, shared_name))
-        # patch pyla. method to shared factory
-        cons = getattr(pylacore, shared_name)
-        pyla[name] = io_wrapper(cons)
+        dst_name = match.group(1)
+        src_name = match.group(0)
+        print("pyla.%s = pylacore.%s" % (dst_name, src_name))
+        # patch pyla. method to wrapped shared factory
+        pyla[dst_name] = io_wrapper_factory(getattr(pylacore, src_name))
 
 
-
-
-# functions
-process = pylacore.process
-read    = pylacore.read
-write   = pylacore.write
 
 # disable constructor
 pylacore.saleae = None

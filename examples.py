@@ -6,7 +6,7 @@ from stream import *
 def saleae_spi():
     return saleae_with(
         syncser(),
-        buftype=['file','/tmp/pyla.bin',1000000],  # Record parsed bytes
+        # buftype=['file','/tmp/pyla.bin',1000000],  # Record parsed bytes
         config={
             'clock_channel'  : 0,
             'data_channel'   : 1,

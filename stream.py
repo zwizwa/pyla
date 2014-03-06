@@ -74,14 +74,4 @@ def saleae_raw():
 
 
 
-# Fully connected data dumpers.
-
-
-def dump_uart(channel=0, log=sys.stderr, dump=print_hex):
-    uart = pyla.uart()
-    gen = saleae_analyzer(uart)
-    uart.set_channel(channel)
-    dump(gen, log=log)
-
-
 

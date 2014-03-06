@@ -28,10 +28,8 @@ def test_uart():
     bits = idle + uart_frame(inbyte) + idle
 
     ov_bytes = bytes(oversample(bits, ov))
-    # print(ov_bytes)
 
-    # output = uart.process_f(ov_bytes)
-    output = pyla.process(uart, ov_bytes)
+    output = uart.process(ov_bytes)
 
 
     # print(bytes(output))
@@ -59,7 +57,7 @@ def test_buf(buf):
     print("read")
     b_ = [1]
     while len(b_) > 0:
-        b_ = pylacore.read(buf)
+        b_ = buf.read()
         print(len(b_))
     print("done")
 
