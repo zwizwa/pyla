@@ -78,9 +78,8 @@ def test_pyla_memmap():
 
 
 test_uart()
+test_pyla_memmap()
 # test_saleae()
-# test_pyla_memmap()
-test_pyla_file()
 
 
 print("IGNORE error below:")

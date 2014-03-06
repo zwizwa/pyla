@@ -22,12 +22,26 @@ hole::~hole() {
 }
 
 
-memory::memory() {
+memory::memory() : _log(NULL) {
+}
+void memory::set_log(const char *filename) {
+  _mutex.lock();
+  if(_log) {
+    fclose(_log);
+  }
+  _log = fopen(filename, "a+");
+  if (!_log) {
+    LOG("WARNING: Can't open file %s\n", filename);
+  }
+  _mutex.unlock();
 }
 void memory::write(chunk& input) {
   _mutex.lock();
   if (!input.empty()) {
     _buf.push_back(input);
+    if (_log) {
+      fwrite(&input[0], 1, input.size(), _log);
+    }
   }
   _mutex.unlock();
 }
@@ -107,3 +121,6 @@ void memmap::read(chunk& output) {
 void memmap::clear() {
   bzero(_buf, _size);
 }
+
+
+

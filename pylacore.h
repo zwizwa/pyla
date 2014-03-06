@@ -102,16 +102,18 @@ class hole : public buffer {
   ~hole();
 };
 
-// Temporary buffer in memory
+// Temporary buffer in memory with optional logfile.
 class memory : public buffer { 
  public:
   memory();
   void read(chunk&);
   void write(chunk&);
+  void set_log(const char *filename);
   ~memory();
  private:
   std::list<chunk> _buf;
   mutex _mutex;
+  FILE *_log;
 };
 
 // File-backed circular buffer
@@ -130,19 +132,7 @@ class memmap : public buffer {
   uint64_t _size;
 };
 
-#if 0
-// File-backed circular buffer
-class file : public file { 
- public:
-  memmap(const char *filename);
-  void read(chunk&);
-  void write(chunk&);
-  ~memmap();
- private:
-  FILE *_write;
-  FILE *_read;
-};
-#endif
+
 
 
 

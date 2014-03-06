@@ -141,7 +141,7 @@ make_shared_chunk(uint64_t size) {
 }
 
 static inline boost::shared_ptr<memmap>
-make_shared_file(const char *filename, uint64_t size) {
+make_shared_memmap(const char *filename, uint64_t size) {
   return boost::shared_ptr<memmap>(new memmap(filename, size));
 }
 
