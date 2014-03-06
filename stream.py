@@ -19,13 +19,6 @@ def print_hex(seq, count_init = 0, log = sys.stderr):
         log.flush()
         count += 1
 
-
-def buf_gen(buf):
-    """Convert pyla buffer to python byte generator."""
-    while 1:
-        for b in pyla.read_blocking(buf):
-            yield(b)
-
 def filter_diff(seq):
     """Pass only changing bytes."""
     last_b = 0
@@ -62,14 +55,14 @@ def saleae_with(op, config=None, buftype=['memory']):
     # buf_op = pyla.compose_snk_op(buf_op, pyla.diff())
     
     saleae.connect_sink(buf_op)
-    return buf_gen(buf)
+    return pyla.buf_gen(buf)
 
 def saleae_raw():
     """Raw saleae byte sequence."""
     saleae = pyla.devices()[0]
     buf = pyla.memory()
     saleae.connect_sink(buf)
-    return buf_gen(buf)
+    return pyla.buf_gen(buf)
 
 
 

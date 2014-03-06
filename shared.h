@@ -165,25 +165,26 @@ make_shared_compose_op_src(boost::shared_ptr<operation> op,
 
 
 
-/* FIXME: These copy to/from vector<unsigned char> to make interop
-   with python arrays possible.  Find a way to use
-   shared_ptr<chunk> */
+/* These copy to/from vector<unsigned char> to make interop with
+   python arrays possible.
+   FIXME: Find a way to use shared_ptr<chunk> */
 static inline std::vector<unsigned char>
-process(operation *op, std::vector<unsigned char> input) {
+copy_process(operation *op, std::vector<unsigned char> input) {
   std::vector<unsigned char> output;
   op->process(output, input);
   return output;
 }
 static inline std::vector<unsigned char>
-read(source *src) {
+copy_read(source *src) {
   std::vector<unsigned char> output;
   src->read(output);
   return output;
 }
 static inline void
-write(sink* snk, std::vector<unsigned char> input) {
+copy_write(sink* snk, std::vector<unsigned char> input) {
   snk->write(input);
 }
+
 
 
 

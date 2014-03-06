@@ -16,17 +16,26 @@ import re
 class io_wrapper:
     def __init__(self, ob):
         self._ob = ob
-    def __getattr__(self, attr):
-        return getattr(self._ob, attr)
 
     # Just override process and read to present a different API in
     # python.  E.g.  process(in,out)  =>  out = process(in)
-
     def process(self, inbuf):
-        return pylacore.process(self._ob, inbuf)
-
+        return pylacore.copy_process(self._ob, inbuf)
     def read(self):
-        return pylacore.read(self._ob)
+        return pylacore.copy_read(self._ob)
+    def write(self, inbuf):
+        pylacore.copy_write(self._ob, inbuf)
+
+    # Add some extra functionality.
+    def bytes(self):
+        return buf_gen(self._ob)
+
+
+
+    # Delegate rest: behave as a subclass.
+    def __getattr__(self, attr):
+        return getattr(self._ob, attr)
+
     
 def io_wrapper_factory(cons):
     def new_cons(*args):
@@ -83,3 +92,9 @@ def read_blocking(buf):
         else:
             time.sleep(.04)
 
+
+def buf_gen(buf):
+    """Convert pyla buffer to python byte generator."""
+    while 1:
+        for b in pyla.read_blocking(buf):
+            yield(b)

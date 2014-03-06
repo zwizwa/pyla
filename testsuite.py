@@ -52,7 +52,7 @@ def test_buf(buf):
     n = 1200000
     print("write")
     for x in range(1 + int(n/len(b))):
-        pylacore.write(buf, b)
+        buf.write(b)
 
     print("read")
     b_ = [1]
@@ -68,7 +68,7 @@ def test_buf(buf):
 
 def test_pyla_file():
     print("test pila.file")
-    buf = pylacore.file("/tmp/pyla.file.bin", 12000000)
+    buf = pyla.file("/tmp/pyla.file.bin", 12000000)
     test_buf(buf)
 
         
