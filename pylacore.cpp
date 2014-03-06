@@ -35,24 +35,15 @@ void compose_op_src :: read(chunk& output) {
   }
 }
 
-compose_snk_op :: compose_snk_op(sink* snk, operation* op) : _op(op), _snk(snk) { }
-compose_snk_op :: ~compose_snk_op() { LOG("~compose_snk_op()\n"); }
-void compose_snk_op :: write(chunk& input) {
-  chunk output;
-  _op->process(output, input);
-  if (!output.empty()) {
-    _snk->write(output);
-  }
-}
 
-compose_op_op :: compose_op_op(operation* op1, operation* op2) : _op1(op1), _op2(op2) { }
+compose_op_op :: compose_op_op(operation *op1, operation *op2)
+  : _op1(op1), _op2(op2) { }
 compose_op_op :: ~compose_op_op() { LOG("~compose_op_op()\n"); }
 void compose_op_op :: process(chunk& output, chunk& input) {
   chunk tmp;
   _op1->process(tmp, input);
   _op1->process(output, tmp);
 }
-
 
 
 
@@ -136,6 +127,7 @@ void file::write(chunk& input) {
     LOG("WARNING: buffer overflow\n");
     chunk_size = _size - _write_index;
   }
+
   memcpy(_buf + _write_index, &input[0], chunk_size);
   _write_index += chunk_size;
 }

@@ -6,50 +6,22 @@ sys.path.append("build")
 
 import pylacore
 import time
-import atexit
-
-
-# FIXME: Some memory management is needed for objects accessible both
-# in python and the co-sink objects in C++ (callbacks).  For now each
-# object is simply registered forever (leaked) using these wrapper
-# functions.
-
-# To reset, disconnect everything from the saleae co-sink objects and
-# clear the registry.
-
-class registry:
-    def __init__(self):
-        self.objects = []
-    def register(self, ob):
-        self.objects.append(ob)
-        return ob
-    def wrap(self, method):
-        print(method)
-        def proxy(*args):
-            return self.register(method(*args))
-        return proxy
-    def disconnect_sinks(self):
-        pylacore.saleae.disconnect_sinks()
-        
-
-r = registry()
-
-
-# Avoid crashes on teardown / DAQ thread is still going strong.
-atexit.register(r.disconnect_sinks)
-
 
 
 # classes
-syncser        = r.wrap(pylacore.syncser)
-uart           = r.wrap(pylacore.uart)
-diff           = r.wrap(pylacore.diff)
-blackhole      = r.wrap(pylacore.blackhole)
-memory         = r.wrap(pylacore.memory)
-file           = r.wrap(pylacore.file)
-compose_snk_op = r.wrap(pylacore.compose_snk_op)
-compose_op_src = r.wrap(pylacore.compose_op_src)
-compose_op_op  = r.wrap(pylacore.compose_op_op)
+
+# shared wrappers
+syncser        = pylacore.shared_syncser
+uart           = pylacore.shared_uart
+diff           = pylacore.shared_diff
+blackhole      = pylacore.shared_blackhole
+memory         = pylacore.shared_memory
+file           = pylacore.shared_file
+
+compose_snk_op = pylacore.shared_compose_snk_op
+#compose_op_src = pylacore.shared_compose_op_src
+#compose_op_op  = pylacore.shared_compose_op_op
+
 
 # functions
 process = pylacore.process

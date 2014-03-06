@@ -83,11 +83,9 @@ def test_pyla_file():
 
 
 
-print(dir(pylacore.make_uart()))
-exit()
 
 test_uart()
 # test_saleae()
 # test_pyla_memmap()
-test_pyla_file()
+# test_pyla_file()
 

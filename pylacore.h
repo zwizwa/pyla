@@ -114,16 +114,6 @@ class compose_op_src : public source {
   source* _src;
 };
 
-class compose_snk_op : public sink {
- public:
-  compose_snk_op(sink* snk, operation* op);
-  ~compose_snk_op();
-  void write(chunk& input);
- private:
-  operation* _op;
-  sink* _snk;
-};
-
 class compose_op_op : public operation {
  public:
   compose_op_op(operation* op1, operation* op2);
