@@ -12,22 +12,45 @@ import re
 # classes
 
 
-# Plug through all shared_ wrappers
-for method in dir(pylacore):
-    match = re.match("make_shared_(.*)", method)
+# For each object constructed, allow some patching.  The C++ code uses
+# in-place operations on chunk references.  Python API uses a
+# functional y = f(x) API.
+
+
+class io_wrapper:
+    def __init__(self, cons):
+        self._cons = cons
+
+    def __call__(self, *args):
+        ob = self._cons(*args)
+        return ob
+
+
+# The make_shared_ functions are wrappers around the base objects,
+# creating boost::shared_ptr to allow proper memory management for
+# objects shared between Python and C++ code (callbacks, composition,
+# ...).
+#   pyla.uart = pylacore.make_shared_uart 
+#   etc...
+
+for attrib in dir(pylacore):
+    match = re.match("make_shared_(.*)", attrib)
     pyla = globals()
     if match:
         name = match.group(1)
         shared_name = match.group(0)
         print("pyla.%s = pylacore.%s" % (name, shared_name))
         # patch pyla. method to shared factory
-        pyla[name] = getattr(pylacore, shared_name)
-        
+        cons = getattr(pylacore, shared_name)
+        pyla[name] = io_wrapper(cons)
+
+
 
 
 # functions
 process = pylacore.process
 read    = pylacore.read
+write   = pylacore.write
 
 # disable constructor
 pylacore.saleae = None

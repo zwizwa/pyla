@@ -13,11 +13,6 @@ def check(cond, msg):
 
 
 
-# It's nice to be able to connect up object hierarchies in
-# Python, i.e. to not excessively wrap the base classes with
-# smart_ptr.  However, this makes it hard to
-
-
 # UART
 def test_uart():
     uart = pyla.uart()
@@ -87,5 +82,8 @@ def test_pyla_file():
 test_uart()
 # test_saleae()
 # test_pyla_memmap()
-# test_pyla_file()
+test_pyla_file()
+
+
+print("IGNORE error below:")
 

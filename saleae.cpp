@@ -116,7 +116,7 @@ saleae::saleae(U64 device_id, GenericInterface* device_interface) :
   _samplerate(PYLA_DEFAULT_SAMPLERATE),
   _sink(shared_ptr<sink>(new hole()))
 {
-  _start();
+  //_start();
 }
 saleae::~saleae() {
   // Tear down the callback before deleting any instances.
