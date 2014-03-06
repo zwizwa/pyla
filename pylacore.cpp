@@ -6,21 +6,6 @@
 #include <sys/mman.h> // windows?
 #include <fcntl.h>
 
-/* Wrapper functions for Python to work around pass-by-reference. */
-chunk process(operation *op, chunk input) {
-  chunk output;
-  op->process(output, input);
-  return output;
-}
-chunk read(source *src) {
-  chunk output;
-  src->read(output);
-  return output;
-}
-void write(sink *snk, chunk input) {
-  snk->write(input);
-}
-
 
 
 /* Buffers */

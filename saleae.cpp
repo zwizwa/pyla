@@ -7,6 +7,8 @@
 #include <iostream>
 #include <string>
 
+using boost::shared_ptr;
+
 
 /* Put these as global static members in the C++ module, not as static
    memers of the class.  swig chokes on the __stdcall */
@@ -21,7 +23,9 @@ static void _start();
 
 
 
-/* Registry */
+/* Registry owns saleae instances
+   Never delete a saleae object, nor remove it from this list. */
+
 static std::vector<saleae*> _device_map;
 static mutex *_device_map_mutex;
 
@@ -110,7 +114,7 @@ saleae::saleae(U64 device_id, GenericInterface* device_interface) :
   _device_id(device_id),
   _device_interface(device_interface),
   _samplerate(PYLA_DEFAULT_SAMPLERATE),
-  _sink(boost::shared_ptr<sink>(new hole()))
+  _sink(shared_ptr<sink>(new hole()))
 {
   _start();
 }
@@ -125,7 +129,7 @@ double saleae::get_samplerate() {
 void saleae::set_samplerate_hint(double sr) {
   _samplerate = sr;
 }
-void saleae::connect_sink(boost::shared_ptr<sink> s) {
+void saleae::connect_sink(shared_ptr<sink> s) {
   LOG("salea.cpp:%08X->connect_sink()\n", _device_id);
   _sink_mutex.lock();
   _sink = s;

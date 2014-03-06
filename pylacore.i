@@ -24,11 +24,14 @@
 %shared_ptr(compose_op_op)
 %shared_ptr(compose_op_src)
 %shared_ptr(compose_snk_op)
+%shared_ptr(chunkstack)
+%shared_ptr(chunk)
 
 namespace std {
   %template(UnsignedIntVector) std::vector<unsigned int>;
   %template(UnsignedCharVector) std::vector<unsigned char>;
   %template(SaleaePointerVector) std::vector<saleae *>;
+  %template(SharedChunk) boost::shared_ptr<std::vector<unsigned char> >;
 }
 
 %include "pylacore.h"

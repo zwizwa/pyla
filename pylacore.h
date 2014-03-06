@@ -22,6 +22,22 @@
    tool.  Let's assume you know what your data means. */
 typedef std::vector<unsigned char> chunk;
 
+#if 0 // not a good idea because of operator& used in memcpy
+class vector_chunk {
+ public:
+  vector_chunk(uint64_t size) : _v(std::vector<unsigned char>(size)) {}
+  vector_chunk() : _v(std::vector<unsigned char>()) {}
+  unsigned char operator[](uint64_t i) { return _v[i]; }
+
+  bool empty() { return _v.empty(); }
+  void clear() { return _v.clear(); }
+  uint64_t size() { return _v.size(); }
+
+ private:
+  std::vector<unsigned char> _v;
+};
+#endif
+
 
 /* Externally triggered data processor. */
 class operation {
@@ -127,12 +143,6 @@ class file : public buffer {
 };
 
 
-
-/* Wrapper functions for Python to work around pass-by-reference for
-   the chunk type. */
-chunk process(operation *, chunk);
-chunk read(source *);
-void write(sink *, chunk);
 
 
 

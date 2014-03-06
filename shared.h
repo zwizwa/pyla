@@ -9,6 +9,7 @@
 #include "syncser.h"
 
 #include <boost/shared_ptr.hpp>
+#include <list>
 
 
 /* A data aquisition device or DAQ abstracts a physical device
@@ -36,7 +37,7 @@ class cosink {
 
 /* Compositions use shared pointers to enforce the use of shared
    factory methods instead of raw constructors from python.  For each
-   composition constructor, also provide a shared_ptr wrapped version.
+   composition constructor, also provide a boost::shared_ptr wrapped version.
  */
 class compose_snk_op : public sink {
  public:
@@ -93,9 +94,35 @@ class compose_op_op : public operation {
 };
 
 
+/* Buffer 2-stack. */
+template<class T>
+class twostack {
+ public:
+ twostack() 
+  : _stack(std::list<boost::shared_ptr<T> >()),
+    _save_stack(std::list<boost::shared_ptr<T> >()) {}
+  void drop() { _stack.pop_front(); }
+  boost::shared_ptr<T> pop() { boost::shared_ptr<T> c = top(); drop(); return c; }
+  boost::shared_ptr<T> top() { return _stack.front(); }
+  void push(boost::shared_ptr<T> c) { _stack.push_front(c); }
+  void dup() { push(top()); }
+
+  void save() { _save_stack.push_front(pop()); }
+  void load() { push(_save_stack.front()); _save_stack.pop_front(); }
+ private:
+  std::list<boost::shared_ptr<T> > _stack;
+  std::list<boost::shared_ptr<T> > _save_stack;
+};
+
+typedef twostack<chunk> chunkstack ;
+
+
+
+/* Wrapped constructors */
+
 // 0-arg constructors are all the same pattern so use macro
 #define wrap(cls) \
-  static inline boost::shared_ptr<cls> shared_##cls() { \
+  static inline boost::shared_ptr<cls> make_shared_##cls() { \
     return boost::shared_ptr<cls>(new cls());           \
   }
 wrap(uart)
@@ -103,29 +130,61 @@ wrap(syncser)
 wrap(memory)
 wrap(diff)
 wrap(hole)
+wrap(chunk)
+wrap(chunkstack)
 
 
 // multi-arg constructors are written out
+static inline boost::shared_ptr<chunk>
+make_shared_chunk(uint64_t size) {
+  return boost::shared_ptr<chunk>(new chunk(size));
+}
+
 static inline boost::shared_ptr<file>
-shared_file(const char *filename, uint64_t size) {
+make_shared_file(const char *filename, uint64_t size) {
   return boost::shared_ptr<file>(new file(filename, size));
 }
 
 static inline boost::shared_ptr<compose_snk_op>
-shared_compose_snk_op(boost::shared_ptr<sink> snk,
-                      boost::shared_ptr<operation> op) {
+make_shared_compose_snk_op(boost::shared_ptr<sink> snk,
+                           boost::shared_ptr<operation> op) {
   return boost::shared_ptr<compose_snk_op>(new compose_snk_op(snk, op));
 }
 static inline boost::shared_ptr<compose_op_op>
-shared_compose_op_op(boost::shared_ptr<operation> op1,
-                     boost::shared_ptr<operation> op2) {
+make_shared_compose_op_op(boost::shared_ptr<operation> op1,
+                          boost::shared_ptr<operation> op2) {
   return boost::shared_ptr<compose_op_op>(new compose_op_op(op1, op2));
 }
 static inline boost::shared_ptr<compose_op_src>
-shared_compose_op_src(boost::shared_ptr<operation> op,
-                      boost::shared_ptr<source> src) {
+make_shared_compose_op_src(boost::shared_ptr<operation> op,
+                           boost::shared_ptr<source> src) {
   return boost::shared_ptr<compose_op_src>(new compose_op_src(op, src));
 }
+
+
+
+
+
+/* FIXME: These copy to/from vector<unsigned char> to make interop
+   with python arrays possible.  Find a way to use
+   shared_ptr<chunk> */
+static inline std::vector<unsigned char>
+process(operation *op, std::vector<unsigned char> input) {
+  std::vector<unsigned char> output;
+  op->process(output, input);
+  return output;
+}
+static inline std::vector<unsigned char>
+read(source *src) {
+  std::vector<unsigned char> output;
+  src->read(output);
+  return output;
+}
+static inline void
+write(sink* snk, std::vector<unsigned char> input) {
+  snk->write(input);
+}
+
 
 
 

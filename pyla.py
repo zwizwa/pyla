@@ -14,18 +14,23 @@ import re
 
 # Plug through all shared_ wrappers
 for method in dir(pylacore):
-    match = re.match("shared_(.*)", method)
-    g = globals()
+    match = re.match("make_shared_(.*)", method)
+    pyla = globals()
     if match:
         name = match.group(1)
         shared_name = match.group(0)
-        # print("pyla.%s = pylacore.%s" % (name, shared_name))
-        g[name] = getattr(pylacore, shared_name)
+        print("pyla.%s = pylacore.%s" % (name, shared_name))
+        # patch pyla. method to shared factory
+        pyla[name] = getattr(pylacore, shared_name)
+        
 
 
 # functions
 process = pylacore.process
 read    = pylacore.read
+
+# disable constructor
+pylacore.saleae = None
 
 
 _poll = []
