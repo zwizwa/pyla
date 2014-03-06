@@ -62,16 +62,6 @@ static saleae *_find(U64 device_id) {
 
 
 
-void saleae::disconnect_sinks() {
-  LOG("salea.cpp:disconnect_sinks()\n");
-  _device_map_mutex->lock();
-  int i, n = _device_map.size();
-  for(i=0; i<n; i++) {
-    _device_map[i]->connect_sink(boost::shared_ptr<sink>(new hole()));
-  }
-  _device_map_mutex->unlock();
-}
-
 std::vector<saleae*> saleae::devices() {
   _start();
   _device_map_mutex->lock();
