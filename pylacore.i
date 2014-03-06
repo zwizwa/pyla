@@ -20,7 +20,7 @@
 %shared_ptr(buffer)
 %shared_ptr(hole)
 %shared_ptr(memory)
-%shared_ptr(file)
+%shared_ptr(memmap)
 %shared_ptr(compose_op_op)
 %shared_ptr(compose_op_src)
 %shared_ptr(compose_snk_op)

@@ -140,9 +140,9 @@ make_shared_chunk(uint64_t size) {
   return boost::shared_ptr<chunk>(new chunk(size));
 }
 
-static inline boost::shared_ptr<file>
+static inline boost::shared_ptr<memmap>
 make_shared_file(const char *filename, uint64_t size) {
-  return boost::shared_ptr<file>(new file(filename, size));
+  return boost::shared_ptr<memmap>(new memmap(filename, size));
 }
 
 static inline boost::shared_ptr<compose_snk_op>

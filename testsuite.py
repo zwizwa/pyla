@@ -66,9 +66,9 @@ def test_buf(buf):
 #    buf = pylacore.memmap("/tmp/pyla.memmap.bin", 1200000)
 #    test_buf(buf)
 
-def test_pyla_file():
+def test_pyla_memmap():
     print("test pila.file")
-    buf = pyla.file("/tmp/pyla.file.bin", 12000000)
+    buf = pyla.memmap("/tmp/pyla.file.bin", 12000000)
     test_buf(buf)
 
         

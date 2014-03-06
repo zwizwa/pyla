@@ -52,7 +52,7 @@ memory::~memory() {
 
 // http://stackoverflow.com/questions/1201261/what-is-the-fastest-method-for-high-performance-sequential-file-i-o-in-c
 
-file::file(const char *filename, uint64_t size) {
+memmap::memmap(const char *filename, uint64_t size) {
   char c = 0;
   _write_index = _read_index = 0;
   _size = size;
@@ -78,11 +78,11 @@ file::file(const char *filename, uint64_t size) {
   // madvise( MADV_MERGEABLE )
                 
 }
-file::~file() {
+memmap::~memmap() {
   munmap(_buf, _size);
   fclose(_store);
 }
-void file::write(chunk& input) {
+void memmap::write(chunk& input) {
   int chunk_size = input.size();
   if (chunk_size > _size - _write_index) {
     LOG("WARNING: buffer overflow\n");
@@ -97,13 +97,13 @@ void file::write(chunk& input) {
 // FIXME: just read max chunk size
 // or is it possible to create a vector with different underlying store?
 // http://stackoverflow.com/questions/14807192/c-can-i-create-a-stdvector-to-manage-an-array-of-elements-specific-known-add
-void file::read(chunk& output) {
+void memmap::read(chunk& output) {
   uint64_t chunk_size = _write_index - _read_index;
   output.resize(chunk_size);
   fflush(_store); // make sure data hits the disk before reading it
   memcpy(&output[0], _buf + _read_index, chunk_size);
   _read_index += chunk_size;
 }
-void file::clear() {
+void memmap::clear() {
   bzero(_buf, _size);
 }

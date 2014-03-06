@@ -115,13 +115,13 @@ class memory : public buffer {
 };
 
 // File-backed circular buffer
-class file : public buffer { 
+class memmap : public buffer { 
  public:
-  file(const char *filename, uint64_t size);
+  memmap(const char *filename, uint64_t size);
   void read(chunk&);
   void write(chunk&);
   void clear();
-  ~file();
+  ~memmap();
  private:
   FILE *_store;
   uint8_t *_buf;
@@ -130,6 +130,19 @@ class file : public buffer {
   uint64_t _size;
 };
 
+#if 0
+// File-backed circular buffer
+class file : public file { 
+ public:
+  memmap(const char *filename);
+  void read(chunk&);
+  void write(chunk&);
+  ~memmap();
+ private:
+  FILE *_write;
+  FILE *_read;
+};
+#endif
 
 
 
