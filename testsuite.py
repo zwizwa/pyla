@@ -22,16 +22,26 @@ def test_uart():
     uart.set_samplerate(sr)
     uart.set_channel(0)
 
-    def test_byte(inbyte):
+    def test_byte(inbytes):
         idle = [1,1,1]
-        bits = idle + uart_frame_nopar(inbyte) + idle
+        bits = idle
+        for inbyte in inbytes:
+            bits = bits + uart_frame_nopar(inbyte)
+        bits = bits + idle
+        # print(bits)
         ov_bytes = bytes(oversample(bits, ov))
         output = uart.process(ov_bytes)
-        check(list(output), [inbyte], "uart in-out")
+        check(list(output), inbytes, "uart in-out")
         
     # FAILS?
     for i in range(256):
-        test_byte(i)
+        test_byte([i])
+
+    for i in range(256):
+        test_byte([i,i,i])
+
+    
+
     # test_byte(0x55)
     # test_byte(0x0F)
 
