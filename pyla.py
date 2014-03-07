@@ -62,11 +62,6 @@ for attrib in dir(pylacore):
         pyla[dst_name] = io_wrapper_factory(getattr(pylacore, src_name))
 
 
-
-# disable constructor
-pylacore.saleae = None
-
-
 _poll = []
 def register_poll(method):
     _poll.append(method)
@@ -77,8 +72,6 @@ def devices():
     while not devices: # Wait for connection
         time.sleep(0.1)
         devices = pylacore.saleae.devices()
-    for d in devices:
-        r.register(d)
     return devices
 
 # FIXME: later use condition variables
@@ -86,7 +79,7 @@ def read_blocking(buf):
     while 1:
         for method in _poll:
             method()
-        out = bytes(pylacore.read(buf))
+        out = bytes(buf.read())
         if (len(out)):
             return out
         else:
@@ -96,5 +89,5 @@ def read_blocking(buf):
 def buf_gen(buf):
     """Convert pyla buffer to python byte generator."""
     while 1:
-        for b in pyla.read_blocking(buf):
+        for b in read_blocking(buf):
             yield(b)
