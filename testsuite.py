@@ -90,8 +90,19 @@ def test_stack():
     p = pyla.stack_program()
     s = pyla.chunk_stack()
     snk = pyla.stack_op_sink(p,s)
-    snk.write([1,2,3])
-    print(list(s.top_copy()))
+    b = [1,2,3]
+    snk.write(b)
+    check(list(s.top_copy()), b, "write to pop")
+
+    s.clear()
+    dup = pylacore.chunk_stack.dup
+    print(dup)
+    p.compile(dup)
+    p.compile(pyla.diff())
+    snk.write([1,1,0,0,1,1])
+    check([1,0,1], list(s.top_copy()), "diff")
+
+
 
 
 test_stack()
