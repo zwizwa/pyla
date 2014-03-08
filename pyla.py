@@ -7,7 +7,13 @@ import pylacore
 import time
 import re
 
-
+# FIXME.  Use condition variables and multiple threads instead?
+_poll = []
+def register_poll(method):
+    _poll.append(method)
+def poll():
+    for method in _poll:
+        method()
 
 # Here the make_shared_ wrapped C++ constructors get wrapped again to
 # produce objects with additional functionality.
@@ -35,11 +41,20 @@ class buffer_wrapper(io_wrapper):
         self.core.write_copy(pylacore.chunk(inbuf))
     def read(self):
         return self.core.read_copy()
+
     # Add some extra functionality.
+    def read_blocking(self):
+        while 1:
+            poll() # FIXME
+            out = bytes(self.core.read_copy())
+            if (len(out)):
+                return out
+            else:
+                time.sleep(.04)
     def bytes(self):
         """Convert pyla buffer to python byte generator."""
         while 1:
-            for b in read_blocking(self.core):
+            for b in self.read_blocking():
                 yield(b)
 
 
@@ -83,9 +98,6 @@ for attrib in dir(pylacore):
         pyla[dst_name] = io_wrapper_factory(getattr(pylacore, src_name))
 
 
-_poll = []
-def register_poll(method):
-    _poll.append(method)
 
 # special
 def devices():
@@ -95,15 +107,5 @@ def devices():
         devices = pylacore.saleae.devices()
     return devices
 
-# FIXME: later use condition variables
-def read_blocking(buf):
-    while 1:
-        for method in _poll:
-            method()
-        out = bytes(buf.read())
-        if (len(out)):
-            return out
-        else:
-            time.sleep(.04)
 
 
