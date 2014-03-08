@@ -39,11 +39,13 @@ def apply_config(obj, config):
                 print("WARNING: set_%s not defined: %s" % (key, e))
     return obj
 
-def saleae_with(op, config=None, buftype=['memory']):
+def saleae_with(op, config=None, record=None, buftype=['memory']):
     """Combine saleae, analyzer+config, buffer to make a python sequence."""
     apply_config(op, config)
     saleae = pyla.devices()[0]
     buf = getattr(pyla, buftype[0])(*buftype[1:])
+    if record:
+        buf.set_log(record)
 
     # use buffer as a sink, and create a new sink to pass to the
     # saleae callback (co-sink).  we'll be reading the other side of

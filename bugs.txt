@@ -1,0 +1,8 @@
+The error message:
+
+python3.3: /home/build/Desktop/boost_1_39_0/boost/smart_ptr/shared_ptr.hpp:409: T* boost::shared_ptr< <template-parameter-1-1> >::operator->() const [with T = boost::thread]: Assertion `px != 0' failed.
+
+is apparently caused by the saleae library:
+http://community.saleae.com/node/117
+http://community.saleae.com/node/404
+

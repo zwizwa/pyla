@@ -18,18 +18,56 @@ static void __stdcall OnDisconnect( U64 device_id, void* user_data );
 static void __stdcall OnReadData( U64 device_id, U8* data, U32 data_length, void* user_data );
 static void __stdcall OnWriteData( U64 device_id, U8* data, U32 data_length, void* user_data );
 static void __stdcall OnError( U64 device_id, void* user_data );
-static saleae *_find(U64);
 static void _start();
 
+void __stdcall OnReadData( U64 device_id, U8* data, U32 data_length, void* user_data ) {
+  saleae::find_device(device_id)->on_read(data, data_length);
+  // We own, so need to delete.
+  DevicesManagerInterface::DeleteU8ArrayPtr( data );
+}
+void __stdcall OnWriteData( U64 device_id, U8* data, U32 data_length, void* user_data ) {
+    /* Not used */
+}
+void __stdcall OnError( U64 device_id, void* user_data ) {
+  LOG("salea.cpp:ERROR\n");
+  saleae::find_device(device_id)->on_error();
+}
+void __stdcall OnDisconnect( U64 device_id, void* user_data ) {
+  saleae::find_device(device_id)->on_disconnect();
+}
+void __stdcall OnConnect( U64 device_id, GenericInterface* device_interface, void* user_data ) {
+  if( dynamic_cast<LogicInterface*>( device_interface ) != NULL ) {
+    LOG("salea.cpp:Connect %08X\n", device_id);
+    LogicInterface *i = (LogicInterface*)device_interface;
+    saleae *dev = saleae::register_device(device_id, i);
+    i->RegisterOnReadData( &OnReadData );
+    i->RegisterOnWriteData( &OnWriteData );
+    i->RegisterOnError( &OnError );
+    double sr = dev->get_samplerate();
+    i->SetSampleRateHz( sr );
+    LOG("salea.cpp:Start %08X at %.3f MHz\n", device_id, sr/1000000);
+    i->ReadStart();
+  }
+}
 
 
-/* Registry owns saleae instances
-   Never delete a saleae object, nor remove it from this list. */
 
-static std::vector<saleae*> _device_map;
-static mutex *_device_map_mutex;
+/* saleae class */
+std::vector<saleae*> saleae::_device_map;
+mutex* saleae::_device_map_mutex;
 
-static void _start() {
+saleae::saleae(U64 device_id, GenericInterface* device_interface) :
+  _device_id(device_id),
+  _device_interface(device_interface),
+  _samplerate(PYLA_DEFAULT_SAMPLERATE),
+  _sink(shared_ptr<sink>(new hole())) { }
+
+saleae::~saleae() {
+  // Tear down the callback before deleting any instances.
+  LOG("salea.cpp:~saleae()\n");
+}
+
+void saleae::_start() {
   static int global_init;
   if (!_device_map_mutex) {
     _device_map_mutex = new mutex();
@@ -41,7 +79,16 @@ static void _start() {
   }
 }
 
-static saleae *_register(U64 device_id, GenericInterface* device_interface) {
+std::vector<saleae*> saleae::devices() {
+  saleae::_start();
+  _device_map_mutex->lock();
+  std::vector<saleae*> _map_copy = _device_map;
+  _device_map_mutex->unlock();
+  return _map_copy;
+}
+
+saleae * saleae::register_device(U64 device_id,
+                                 GenericInterface* device_interface) {
   _device_map_mutex->lock();
   /* It doesn't seem that we can use user_data to associate an instance
      to each device_id, so do dispatch based on a device_map */
@@ -60,67 +107,9 @@ static saleae *_register(U64 device_id, GenericInterface* device_interface) {
   _device_map_mutex->unlock();
   return d;
 }
-static saleae *_find(U64 device_id) {
-  return _register(device_id, NULL);
-}
 
-
-
-std::vector<saleae*> saleae::devices() {
-  _start();
-  _device_map_mutex->lock();
-  std::vector<saleae*> _map_copy = _device_map;
-  _device_map_mutex->unlock();
-  return _map_copy;
-}
-
-
-void __stdcall OnReadData( U64 device_id, U8* data, U32 data_length, void* user_data ) {
-  _find(device_id)->on_read(data, data_length);
-  // We own, so need to delete.
-  DevicesManagerInterface::DeleteU8ArrayPtr( data );
-}
-void __stdcall OnWriteData( U64 device_id, U8* data, U32 data_length, void* user_data ) {
-    /* Not used */
-}
-void __stdcall OnError( U64 device_id, void* user_data ) {
-  LOG("salea.cpp:ERROR\n");
-  _find(device_id)->on_error();
-}
-void __stdcall OnDisconnect( U64 device_id, void* user_data ) {
-  _find(device_id)->on_disconnect();
-}
-void __stdcall OnConnect( U64 device_id, GenericInterface* device_interface, void* user_data ) {
-  if( dynamic_cast<LogicInterface*>( device_interface ) != NULL ) {
-    LOG("salea.cpp:Connect %08X\n", device_id);
-    LogicInterface *i = (LogicInterface*)device_interface;
-
-    saleae *dev = _register(device_id, i);
-
-    i->RegisterOnReadData( &OnReadData );
-    i->RegisterOnWriteData( &OnWriteData );
-    i->RegisterOnError( &OnError );
-    double sr = dev->get_samplerate();
-    i->SetSampleRateHz( sr );
-    LOG("salea.cpp:Start %08X at %.3f MHz\n", device_id, sr/1000000);
-    i->ReadStart();
-  }
-}
-
-
-
-
-saleae::saleae(U64 device_id, GenericInterface* device_interface) :
-  _device_id(device_id),
-  _device_interface(device_interface),
-  _samplerate(PYLA_DEFAULT_SAMPLERATE),
-  _sink(shared_ptr<sink>(new hole()))
-{
-  //_start();
-}
-saleae::~saleae() {
-  // Tear down the callback before deleting any instances.
-  LOG("salea.cpp:~saleae()\n");
+saleae *saleae::find_device(U64 device_id) {
+  return register_device(device_id, NULL);
 }
 
 double saleae::get_samplerate() {
@@ -151,7 +140,7 @@ void saleae::on_error() {
 }
 void saleae::on_disconnect() {
   // FIXME
-  LOG("on_error\n");
+  LOG("on_disconnect\n");
 }
 
 U64 saleae::get_device_id() {
