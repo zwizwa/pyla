@@ -48,7 +48,7 @@ class cosink {
 wrap(uart)
 wrap(syncser)
 wrap(memory)
-wrap(diff)
+wrap(dedup)
 wrap(hole)
 wrap(stack_program)
 wrap(chunk_stack)

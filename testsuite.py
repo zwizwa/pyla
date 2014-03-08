@@ -94,8 +94,8 @@ def test_memmap():
 def test_stack():
     # Create stack program
     p = pyla.stack_program()
-    p.dup()           # duplicate input
-    p.op(pyla.diff()) # perform diff operation
+    p.dup()            # duplicate input
+    p.op(pyla.dedup()) # perform deduplication operation
 
     # Wrap it as a sink.
     snk = pyla.stack_op_sink(p)
@@ -124,7 +124,7 @@ def test_multibuf():
     p = pyla.stack_program()
     p.dup()
     p.save()
-    p.op(pyla.diff())
+    p.op(pyla.dedup())
     p.save()
 
     # Wrap it as a sink.

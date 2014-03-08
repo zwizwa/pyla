@@ -71,9 +71,9 @@ void syncser::process(chunk& output, chunk& input) {
 
 
 
-diff::diff() : _last(-1) {}
+dedup::dedup() : _last(-1) {}
 
-void diff::process(chunk& output, chunk& input) {
+void dedup::process(chunk& output, chunk& input) {
   int i, i_size = input.size();
   for (i=0; i<i_size; i++) {
     unsigned char b = input[i];

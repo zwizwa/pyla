@@ -18,7 +18,7 @@
 %shared_ptr(operation)
 %shared_ptr(uart)
 %shared_ptr(syncser)
-%shared_ptr(diff)
+%shared_ptr(dedup)
 %shared_ptr(sink)
 %shared_ptr(source)
 %shared_ptr(buffer)

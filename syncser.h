@@ -40,9 +40,9 @@ class syncser : public frontend {
    synchronous protocols in python as it lowers CPU usage
    significantly. */
 
-class diff : public operation {
+class dedup : public operation {
  public:
-  diff();
+  dedup();
   void process(chunk&, chunk&);
  private:
   int _last;
