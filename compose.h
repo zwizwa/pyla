@@ -18,10 +18,10 @@ class compose_snk_op : public sink {
                  boost::shared_ptr<operation> op)
     : _op(op), _snk(snk) { }
   ~compose_snk_op() {  LOG("~compose_snk_op()\n"); }
-  void write(chunk& input) {
-    chunk output;
-    _op->process(output, input);
-    if (!output.empty()) {
+  void write(boost::shared_ptr<chunk> input) {
+    boost::shared_ptr<chunk> output = boost::shared_ptr<chunk>(new chunk());
+    _op->process(*output, *input);
+    if (!output->empty()) {
       _snk->write(output);
     }
   }
@@ -36,13 +36,12 @@ class compose_op_src : public source {
                 boost::shared_ptr<source> src) 
     : _op(op), _src(src) { }
   ~compose_op_src() { LOG("~compose_op_src()\n"); }
-  void read(chunk& output) {
-      chunk input;
-      _src->read(input);
-      while(!input.empty()) {
-        _op->process(output, input);
-        input.clear();
-        _src->read(input);
+  boost::shared_ptr<chunk> read() {
+      boost::shared_ptr<chunk> input = _src->read();
+      boost::shared_ptr<chunk> output = boost::shared_ptr<chunk>(new chunk());
+      while(!input->empty()) {
+        _op->process(*output, *input);
+        input = _src->read();
       }
   }
  private:

@@ -103,7 +103,7 @@ def test_stack():
 
 
 
-test_stack()
+# test_stack()
 test_uart()
 test_pyla_memmap()
 # test_saleae()

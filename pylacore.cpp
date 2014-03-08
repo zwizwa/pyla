@@ -10,12 +10,12 @@
 
 /* Buffers */
 
-void hole::read(chunk& output) {
-  chunk empty; 
-  output = empty;
+boost::shared_ptr<chunk> hole::read() {
+  boost::shared_ptr<chunk> output = boost::shared_ptr<chunk>(new chunk());
+  return output;
 }
-void hole::write(chunk& input) {
-  std::cerr << "drop: " << input.size() << std::endl;
+void hole::write(boost::shared_ptr<chunk> input) {
+  std::cerr << "drop: " << input->size() << std::endl;
 }
 hole::~hole() {
   LOG("~hole()\n");
@@ -35,28 +35,29 @@ void memory::set_log(const char *filename) {
   }
   _mutex.unlock();
 }
-void memory::write(chunk& input) {
+void memory::write(boost::shared_ptr<chunk> input) {
   _mutex.lock();
-  if (!input.empty()) {
+  if (!input->empty()) {
     _buf.push_back(input);
     if (_log) {
-      fwrite(&input[0], 1, input.size(), _log);
+      fwrite(&((*input)[0]), 1, input->size(), _log);
     }
   }
   _mutex.unlock();
 }
-void memory::read(chunk& output) {
+boost::shared_ptr<chunk> memory::read() {
+   boost::shared_ptr<chunk> output;
    _mutex.lock();
    
    if (_buf.empty()) {
-     chunk empty;
-     output = empty;
+     output = boost::shared_ptr<chunk>(new chunk());
    }
    else {
      output = _buf.front();
      _buf.pop_front();
    }
    _mutex.unlock();
+   return output;
 }
 
 memory::~memory() {
@@ -96,14 +97,14 @@ memmap::~memmap() {
   munmap(_buf, _size);
   fclose(_store);
 }
-void memmap::write(chunk& input) {
-  int chunk_size = input.size();
+void memmap::write(boost::shared_ptr<chunk> input) {
+  int chunk_size = input->size();
   if (chunk_size > _size - _write_index) {
     LOG("WARNING: buffer overflow\n");
     chunk_size = _size - _write_index;
   }
 
-  memcpy(_buf + _write_index, &input[0], chunk_size);
+  memcpy(_buf + _write_index, &((*input)[0]), chunk_size);
   _write_index += chunk_size;
 }
 
@@ -111,12 +112,15 @@ void memmap::write(chunk& input) {
 // FIXME: just read max chunk size
 // or is it possible to create a vector with different underlying store?
 // http://stackoverflow.com/questions/14807192/c-can-i-create-a-stdvector-to-manage-an-array-of-elements-specific-known-add
-void memmap::read(chunk& output) {
+boost::shared_ptr<chunk> memmap::read() {
   uint64_t chunk_size = _write_index - _read_index;
-  output.resize(chunk_size);
+  boost::shared_ptr<chunk>output = boost::shared_ptr<chunk>(new chunk());
   fflush(_store); // make sure data hits the disk before reading it
-  memcpy(&output[0], _buf + _read_index, chunk_size);
+
+  output->assign(_buf + _read_index,
+                 _buf + _read_index + chunk_size);
   _read_index += chunk_size;
+  return output;
 }
 void memmap::clear() {
   bzero(_buf, _size);

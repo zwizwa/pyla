@@ -10,8 +10,6 @@
 #include "compose.h"
 #include "rpn.h"
 
-
-#include <boost/shared_ptr.hpp>
 #include <list>
 
 

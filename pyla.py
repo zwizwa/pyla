@@ -32,19 +32,16 @@ class io_wrapper:
         o = pylacore.chunk()
         self.core.process(o, i)
         return o
-    def read(self):
-        o = pylacore.chunk()
-        self.core.read(o)
-        return o
-    def write(self, inbuf):
-        i = pylacore.chunk(inbuf) 
-        self.core.write(i)
 
     # Add some extra functionality.
     def bytes(self):
         return buf_gen(self.core)
 
+    def write(self, inbuf):
+        self.core.write_copy(pylacore.chunk(inbuf))
 
+    def read(self):
+        return self.core.read_copy()
 
     # Delegate rest: behave as a subclass.
     def __getattr__(self, attr):

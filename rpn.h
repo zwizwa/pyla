@@ -138,11 +138,9 @@ class stack_op_sink : public sink {
     _stack(stack) { }
 
   /* Sink interface. */
-  void write(chunk& input) {
+  void write(boost::shared_ptr<chunk> input) {
     _stack->clear();
-    // FIXME: avoid copy
-    boost::shared_ptr<chunk> c = boost::shared_ptr<chunk>(new chunk(input));
-    _stack->push(c);
+    _stack->push(input);
     _program->run(*_stack);
   }
 
