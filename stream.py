@@ -66,6 +66,34 @@ def saleae_raw():
 # MULTIPLE OUTPUTS (not abstracted as streams)
 # FIXME: not sure yet how to present this in API...
 
+# For the most common case of running a couple of analyzers in
+# parallel, hide the more general dataflow Forth API.
+def parallel(procs):
+    p = pyla.stack_program()
+
+    # When this program is used in a stack_op_sink, the program is
+    # presented with a stack containing one buffer: the current sample
+    # chunk.  After the program is finished, the output corresponds to
+    # the contents of the operand stack and the save stack, back to
+    # back.  E.g. with 2 and 3 elements:
+    #
+    # operand  save
+    # 1 0      0 1 2   // data on stacks
+    # 4 3      2 1 0   // mapped to outputs
+    #
+    # In short, data appears in the sequence it is passed to `save`.
+
+    for proc in procs:
+        p.dup()     # duplicate input
+        p.op(proc)  # process input -> output
+        p.save()    # push result to save stack
+    p.drop()        # get rid of input
+
+    return p
+
+The data that remains on the operand
+    # stack + save stack determines the output vector.
+
 class multibuf:
     def __init__(self, stack_prog):
         self._p = stack_prog

@@ -21,19 +21,12 @@ def print_uart_and_spi():
         'clock_polarity' : 0,  # clock idle polarity
     })
     
-    # Create dataflow program.  Before each run, the saleae data will
-    # be loaded on the stack.  The data that remains on the operand
-    # stack + save stack determines the output vector.
-    _ = pyla.stack_program()
-
-    _.dup()
-    _.op(_spi)  
-    _.save()    # output 0
-    _.op(_uart) 
-    _.save()    # output 1   (last save is redundant)
+    # Create dataflow program.  See implementation of `parallel' for
+    # more general Forth-like dataflow composition.
+    p = parallel(_spi, _uart)
 
     # Wrap program as a buffered sink
-    mb = multibuf(_)
+    mb = multibuf(p)
 
     # Connect to the sampling device
     mb.connect(devices()[0])
