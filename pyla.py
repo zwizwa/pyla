@@ -57,6 +57,9 @@ class buffer_wrapper(io_wrapper):
                 return out
             else:
                 time.sleep(.04)
+
+    # In Python it seems most convenient to work with sequences instead of
+    # sample chunks and non-blocking reads.
     def bytes(self):
         """Convert pyla buffer to python byte generator."""
         while 1:
@@ -65,7 +68,7 @@ class buffer_wrapper(io_wrapper):
 
 
 
-def maybe_attrs(ob, attrs):
+def has_attrs(ob, attrs):
     lst = []
     for attr in attrs:
         try:
@@ -74,12 +77,12 @@ def maybe_attrs(ob, attrs):
             pass
     return lst
     
-def io_wrapper_factory(cons):
+def io_wrapper_factory(old_cons):
     def new_cons(*args):
-        ob = cons(*args)
-        if 0 < len(maybe_attrs(ob, ['read','write'])):
+        ob = old_cons(*args)
+        if has_attrs(ob, ['read','write']):
             return buffer_wrapper(ob)
-        if 0 < len(maybe_attrs(ob, ['process'])):
+        if has_attrs(ob, ['process']):
             return process_wrapper(ob)
         return ob
     return new_cons
@@ -99,13 +102,12 @@ for attrib in dir(pylacore):
     if match:
         dst_name = match.group(1)
         src_name = match.group(0)
-        print("pyla.%s = pylacore.%s" % (dst_name, src_name))
+        # print("pyla.%s = pylacore.%s" % (dst_name, src_name))
         # patch pyla. method to wrapped shared factory
         pyla[dst_name] = io_wrapper_factory(getattr(pylacore, src_name))
 
 
 
-# special
 def devices():
     devices = []
     while not devices: # Wait for connection
@@ -124,17 +126,3 @@ def apply_config(obj, config):
             except Exception as e:
                 print("WARNING: set_%s not defined: %s" % (key, e))
     return obj
-
-
-## overkill...
-# class program():
-#     def __init__(self):
-#         self._p = stack_program()
-#     def __getattr__(self, attr):
-#         m = getattr(self._p, attr)
-#         def comp(*args):
-#             m(*args)
-#             return self
-#         return comp
-
-    

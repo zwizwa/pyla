@@ -1,8 +1,11 @@
 import pyla
 import sys
 
-# Sequence sources / filters / sinks
+# In Python it seems most convenient to work with sequences instead of
+# sample chunks and non-blocking reads.  This file contains some
+# utilities on top of pyla.buffer_wrapper.bytes()
 
+# SINKS
 def print_ascii(seq, log = sys.stderr):
     """Print byte stream as ascii."""
     for b in seq:
@@ -19,6 +22,7 @@ def print_hex(seq, count_init = 0, log = sys.stderr):
         log.flush()
         count += 1
 
+# FILTERS
 def filter_diff(seq):
     """Pass only changing bytes."""
     last_b = 0
@@ -27,6 +31,7 @@ def filter_diff(seq):
             yield(b)
         last_b = b
 
+# SOURCES
 def saleae_with(op, record=None, buftype=['memory']):
     """Combine saleae, analyzer+config, buffer to make a python sequence."""
     saleae = pyla.devices()[0]
