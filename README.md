@@ -1,7 +1,7 @@
 Python Logic Analyzer
 
 Streaming data analyzer for Saleae logic[1] based on Saleae SDK[2][3].
-Currently supports the 8bit version.
+Currently supports the 8-port version.
 Support for other aquisition modules is possible. (Send me some hardware!)
 
 Basic ideas:
@@ -26,25 +26,24 @@ C++ frontend code on a bare-bones microcontroller.
 
 Currently supports:
 
-- Synchronous serial
+- C++: Synchronous serial, Asynchronous serial, De-duplication
 
-- Asynchronous serial
+- Python: all C++ code wrapped as Python generators for ad-hoc
+  processing.  Some examples include console dump ASCII, HEX.
 
-- Console dump ASCII
+- Python: composition of C++ modules
 
-- Console dump HEX
+    - Simple Serial chaining
 
-- Linear composition of analyzers 
+    - Parallel/Serial chaining (RPN dataflow programs)
 
-- De-duplication (data-reduction for synchronous protocol parsing in Python)
 
 
 
 Planned:
 
-- Cross-platform Qt GUI in Python PySide
+- Cross-platform Qt GUI tools in Python PySide
 
-- Arbitrary DAG composition.
 
 
 
