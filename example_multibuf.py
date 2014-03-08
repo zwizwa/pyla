@@ -23,7 +23,7 @@ def print_uart_and_spi():
     
     # Create dataflow program.  See implementation of `parallel' for
     # more general Forth-like dataflow composition.
-    p = parallel(_spi, _uart)
+    p = parallel([_spi, _uart])
 
     # Wrap program as a buffered sink
     mb = multibuf(p)

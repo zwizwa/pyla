@@ -91,8 +91,6 @@ def parallel(procs):
 
     return p
 
-The data that remains on the operand
-    # stack + save stack determines the output vector.
 
 class multibuf:
     def __init__(self, stack_prog):
