@@ -95,14 +95,21 @@ def test_stack():
     p.dup() # duplicate input
     p.op(pyla.diff()) # perform diff operation
 
+
+    p = pyla.program().dup().op(pyla.diff())
+
     # Wrap it into a sink API
-    snk = pyla.stack_op_sink(p)
+    snk = pyla.stack_op_sink(p._p)
+
+    # Perform a dummy run to determine the number of outputs.
+    snk.write([])
 
     # Attach output sinks
-    b1 = pyla.memory()
-    b2 = pyla.memory()
-    snk.add_output(b1)
-    snk.add_output(b2)
+    b = []
+    for i in range(snk.nb_outputs()):
+        m = pyla.memory()
+        b.append(m)
+        snk.connect_output(i, m)
 
     # Push data into sink.
     indata = [1,1,0,0,1,1]
@@ -110,9 +117,9 @@ def test_stack():
 
     # The rults appear in the buffers.
     # First is result of diff operation
-    check([1,0,1], list(b1.read()), "b1")
+    check([1,0,1], list(b[0].read()), "b1")
     # Second is the duplicated input
-    check(indata,  list(b2.read()), "b2")
+    check(indata,  list(b[1].read()), "b2")
 
     print("test_stack done")
 

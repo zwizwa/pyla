@@ -123,3 +123,15 @@ def apply_config(obj, config):
                 print("WARNING: set_%s not defined: %s" % (key, e))
     return obj
 
+
+class program():
+    def __init__(self):
+        self._p = stack_program()
+    def __getattr__(self, attr):
+        m = getattr(self._p, attr)
+        def comp(*args):
+            m(*args)
+            return self
+        return comp
+
+    

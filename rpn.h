@@ -140,8 +140,9 @@ class stack_op_sink : public sink {
  public:
  stack_op_sink(boost::shared_ptr<stack_op> program) :
     _program(program) { }
-  void add_output(boost::shared_ptr<sink> s) { 
-    _out_sinks.push_back(s);
+  void connect_output(int index, boost::shared_ptr<sink> s) { 
+    if (_out_sinks.size() <= index) _out_sinks.resize(index+1);
+    _out_sinks[index] = s;
   }
   void write(boost::shared_ptr<chunk> input) {
     _stack.clear();
@@ -149,13 +150,26 @@ class stack_op_sink : public sink {
     _program->run(_stack);
     _move_to_out_sinks();
   }
+  int nb_outputs() {
+    return _out_sinks.size();
+  }
   
  private:
   void _move_to_out_sinks() {
-    for (int i = 0; i < _out_sinks.size(); i++) {
-      if (!_stack.empty()) {
-        _out_sinks[i]->write(_stack.pop());
+    int index = 0;
+    while(!_stack.empty()) {
+      boost::shared_ptr<chunk> c = _stack.pop();
+      if (_out_sinks.size() <= index) {
+        // autocreatecreate a slot
+        _out_sinks.resize(index+1);
       }
+      if (_out_sinks[index]) {
+        _out_sinks[index]->write(c);
+      }
+      else {
+        LOG("null sink %d\n", index);
+      }
+      index++;
     }
   }
   chunk_stack _stack;
