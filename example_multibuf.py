@@ -40,9 +40,9 @@ def print_uart_and_spi():
 
     # Print both streams to console.
     while True:
-        buf = mb.read_multi()
-        print_hex  (buf[0])
-        print_ascii(buf[1])
+        [buf_spi, buf_ascii] = mb.read_multi()
+        print_hex  (buf_spi)
+        print_ascii(buf_ascii)
         time.sleep(0.1)
 
 
