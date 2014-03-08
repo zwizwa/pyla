@@ -69,26 +69,29 @@ def saleae_raw():
 # For the most common case of running a couple of analyzers in
 # parallel, hide the more general dataflow Forth API.
 def parallel(procs):
+ 
+
+    # Create a program by concatenation.  Each method call appends an
+    # operation to the program.
     p = pyla.stack_program()
-
-    # When this program is used in a stack_op_sink, the program is
-    # presented with a stack containing one buffer: the current sample
-    # chunk.  After the program is finished, the output corresponds to
-    # the contents of the operand stack and the save stack, back to
-    # back.  E.g. with 2 and 3 elements:
-    #
-    # operand  save
-    # 1 0      0 1 2   // data on stacks
-    # 4 3      2 1 0   // mapped to outputs
-    #
-    # In short, data appears in the sequence it is passed to `save`.
-
     for proc in procs:
         p.dup()     # duplicate input
         p.op(proc)  # process input -> output
         p.save()    # push result to save stack
     p.drop()        # get rid of input
 
+    # When a program is used in a stack_op_sink, the program is
+    # presented with a stack containing one buffer: the current sample
+    # chunk.  After the program is finished, the output corresponds to
+    # the contents of the operand stack and the save stack, back to
+    # back.  E.g. with 2 and 3 elements remaining, there are 5 outputs:
+    #
+    # operand  save
+    # 1 top    top 1  2   // data on stacks
+    # 4  3      2  1  0   // mapped to outputs
+    #
+    # In short, data appears in the output in the same order it is
+    # passed to the `save` operation.
     return p
 
 

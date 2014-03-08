@@ -21,8 +21,8 @@ def print_uart_and_spi():
         'clock_polarity' : 0,  # clock idle polarity
     })
     
-    # Create dataflow program.  See implementation of `parallel' for
-    # more general Forth-like dataflow composition.
+    # Create dataflow program.  See implementation of `parallel' in
+    # stream.py for more general Forth-like dataflow composition.
     p = parallel([_spi, _uart])
 
     # Wrap program as a buffered sink
