@@ -23,15 +23,11 @@
    tool.  Let's assume you know what your data means. 
 
    Regarding memory management:
-   - process doesn't manage memory; uses references
-   - read/write use shared pointers
+   - operation doesn't manage memory; uses references
+   - read/write use shared pointers  (+ optional _copy() methods)
 */
 typedef std::vector<unsigned char> chunk;
 
-
-/* Note that operation, source, sink has a different API in python,
-   C++ uses in-place operation (references),  f (in, out)
-   Python uses a   out = f ( in ) style */
 
 /* Externally triggered data processor. */
 class operation {
@@ -44,24 +40,16 @@ class operation {
 class source {
  public:
   virtual boost::shared_ptr<chunk> read() = 0;
+  chunk read_copy() { return *read(); }
   virtual ~source() {}
-
-  chunk read_copy() {
-    return *read();
-  }
 };
 
 /* Sink is the push interface for data consumers. */
 class sink {
  public:
   virtual void write(boost::shared_ptr<chunk>) = 0;
+  void write_copy(chunk& c) { write(boost::shared_ptr<chunk>(new chunk(c))); }
   virtual ~sink() {}
-
-  void write_copy(chunk& c) {
-    boost::shared_ptr<chunk> p = boost::shared_ptr<chunk>(new chunk(c));
-    write(p);
-  }
-
 };
 
 /* Buffer write should never fail.  Overrun == fatal error.
@@ -70,10 +58,7 @@ class sink {
    Read chunk size is implementation-dependent. */
 class buffer : public source, public sink {
  public:
-  virtual boost::shared_ptr<chunk> read() = 0;
-  virtual void write(boost::shared_ptr<chunk>) = 0;
   virtual ~buffer() {}
-
 };
 
 
@@ -100,7 +85,6 @@ class frontend : public operation {
 public:
   virtual void set_samplerate(double sr) = 0;
   virtual void reset() = 0;
-  virtual void process(chunk&, chunk&) = 0;
   virtual ~frontend() {}
 };
 
