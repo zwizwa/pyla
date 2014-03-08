@@ -36,13 +36,14 @@ class process_wrapper(io_wrapper):
 class buffer_wrapper(io_wrapper):
     def __init__(self, ob):
         super(buffer_wrapper, self).__init__(ob)
-    # Add some copying to keep swig happy.
+
+    # Use chunk copies to keep swig happy.
     def write(self, inbuf):
         self.core.write_copy(pylacore.chunk(inbuf))
     def read(self):
         return self.core.read_copy()
 
-    # Add some extra functionality.
+    # Extra functionality.
     def read_blocking(self):
         while 1:
             poll() # FIXME
