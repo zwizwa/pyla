@@ -1,9 +1,9 @@
 from pyla import *
 from stream import *
 
-# DUMP SPI as ASCII
 
-pyla.saleae.start(4000000)
+## Currently samplerate can only be set once at startup.
+# pyla.saleae.start(4000000)
 
 def saleae_spi():
     return saleae_with(
@@ -18,17 +18,7 @@ def saleae_spi():
         record = "/tmp/spi.bin")
 
 
-def saleae_uart():
-    return saleae_with(
-        uart().config({
-            'channel'  : 3,
-            'baudrate' : 115200,
-        }))
-
-
     
-
-# print_hex(saleae_spi())
-print_ascii(saleae_uart())
+print_hex(saleae_spi())
 
 
