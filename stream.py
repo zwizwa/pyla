@@ -80,5 +80,6 @@ class multibuf:
     def read_multi(self):
         return [b.read() for b in self._buf]
 
-    def connect_saleae(self):
-        pyla.devices()[0].connect_sink(self._snk)
+    def connect(self,dev):
+        dev.connect_sink(self._snk)
+        return self
