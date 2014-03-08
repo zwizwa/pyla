@@ -10,33 +10,6 @@
 #include "compose.h"
 #include "rpn.h"
 
-#include <list>
-
-
-/* A data aquisition device or DAQ abstracts a physical device
-   implemented as a system callback / ISR.  It can deliver data to a
-   sink, and is therefore called a co-sink.
-
-   It is not the same as a source.  A source is a callable pull object
-   - not a callback framework.  A source can be made by combining a
-   DAQ and a buffer. 
-
-   This is part of shared.h as there will be references from Python as
-   well.
-
-*/
-
-class cosink {
- public:
-  virtual void connect_sink(boost::shared_ptr<sink>) = 0;
-};
-
-/* There is no cosource - the thing that reads a source.
-   That would be your Python code. */
-
-
-
-
 
 /* Wrapped constructors */
 
@@ -53,18 +26,15 @@ wrap(hole)
 wrap(stack_program)
 wrap(chunk_stack)
 
-
 // multi-arg constructors are written out
 static inline boost::shared_ptr<stack_op_sink>
 shared_stack_op_sink(boost::shared_ptr<stack_op> program) {
   return boost::shared_ptr<stack_op_sink>(new stack_op_sink(program));
 }
-
 static inline boost::shared_ptr<memmap>
 shared_memmap(const char *filename, uint64_t size) {
   return boost::shared_ptr<memmap>(new memmap(filename, size));
 }
-
 static inline boost::shared_ptr<compose_snk_op>
 shared_compose_snk_op(boost::shared_ptr<sink> snk,
                       boost::shared_ptr<operation> op) {
