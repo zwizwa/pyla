@@ -14,34 +14,41 @@ import re
 
 class io_wrapper:
     def __init__(self, ob):
-        self._ob = ob
+        self.core = ob
 
-    # Just override process and read to present a different API in
-    # python.  E.g.  process(in,out)  =>  out = process(in)
+    # Override to present a simpler API in Python.
+    #       process(in,out)  =>  out = process(in)
+    #       read(in)         =>  in  = read()
+    # 
+    # The original methods are still available as:
+    #       .core.process(o, i)
+    #       .core.read(i)
+    #       .core.write(i)
+
     def process(self, inbuf):
         # FIXME: array to chunk& conversion seems to need an
-        # intermediate step going through a copy
+        # intermediate step going through a copy.
         i = pylacore.chunk(inbuf) 
         o = pylacore.chunk()
-        self._ob.process(o, i)
+        self.core.process(o, i)
         return o
     def read(self):
         o = pylacore.chunk()
-        self._ob.read(o)
+        self.core.read(o)
         return o
     def write(self, inbuf):
         i = pylacore.chunk(inbuf) 
-        self._ob.write(i)
+        self.core.write(i)
 
     # Add some extra functionality.
     def bytes(self):
-        return buf_gen(self._ob)
+        return buf_gen(self.core)
 
 
 
     # Delegate rest: behave as a subclass.
     def __getattr__(self, attr):
-        return getattr(self._ob, attr)
+        return getattr(self.core, attr)
 
     
 def io_wrapper_factory(cons):
