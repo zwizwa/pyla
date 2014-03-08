@@ -92,17 +92,11 @@ def test_memmap():
 def test_stack():
     # Create stack program
     p = pyla.stack_program()
-    p.dup() # duplicate input
+    p.dup()           # duplicate input
     p.op(pyla.diff()) # perform diff operation
 
-
-    p = pyla.program().dup().op(pyla.diff())
-
-    # Wrap it into a sink API
-    snk = pyla.stack_op_sink(p._p)
-
-    # Perform a dummy run to determine the number of outputs.
-    snk.write([])
+    # Wrap it as a sink.
+    snk = pyla.stack_op_sink(p)
 
     # Attach output sinks
     b = []

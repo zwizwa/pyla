@@ -134,47 +134,48 @@ class stack_program : public stack_op {
 
 
 /* Present a stack_op operation as a sink object.  Data gets pushed
-   into write(), which triggers the program to run.  The result is
-   gathered from the stack and pushed into the output sinks.  */
+   into the write() method, which triggers the program to run.  The
+   result is then gathered from the stack and pushed into the output
+   sinks.  */
 class stack_op_sink : public sink {
  public:
  stack_op_sink(boost::shared_ptr<stack_op> program) :
-    _program(program) { }
-  void connect_output(int index, boost::shared_ptr<sink> s) { 
-    if (_out_sinks.size() <= index) _out_sinks.resize(index+1);
-    _out_sinks[index] = s;
+    _program(program) { 
+      /* Perform a dummy run to determine the number of outputs. */
+      boost::shared_ptr<chunk> probe = boost::shared_ptr<chunk>(new chunk());
+      _stack.push(probe);
+      _program->run(_stack);
+      /* Initialize output vector with holes. */
+      for (int i = 0; i<_stack.size(); i++) {
+        boost::shared_ptr<hole> h = boost::shared_ptr<hole>(new hole());
+        _outputs.push_back(h);
+      }
+    }
+  void connect_output(unsigned int index, boost::shared_ptr<sink> s) { 
+    if (index < _outputs.size()) _outputs[index] = s;
   }
   void write(boost::shared_ptr<chunk> input) {
     _stack.clear();
     _stack.push(input);
     _program->run(_stack);
-    _move_to_out_sinks();
+    _move_to_outputs();
   }
   int nb_outputs() {
-    return _out_sinks.size();
+    return _outputs.size();
   }
   
  private:
-  void _move_to_out_sinks() {
+  void _move_to_outputs() {
     int index = 0;
     while(!_stack.empty()) {
       boost::shared_ptr<chunk> c = _stack.pop();
-      if (_out_sinks.size() <= index) {
-        // autocreatecreate a slot
-        _out_sinks.resize(index+1);
-      }
-      if (_out_sinks[index]) {
-        _out_sinks[index]->write(c);
-      }
-      else {
-        LOG("null sink %d\n", index);
-      }
+      if (index < _outputs.size()) _outputs[index]->write(c);
       index++;
     }
   }
   chunk_stack _stack;
   boost::shared_ptr<stack_op> _program;
-  std::vector<boost::shared_ptr<sink> > _out_sinks;
+  std::vector<boost::shared_ptr<sink> > _outputs;
 };
 
 

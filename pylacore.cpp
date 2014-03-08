@@ -18,7 +18,7 @@ void hole::write(boost::shared_ptr<chunk> input) {
   std::cerr << "drop: " << input->size() << std::endl;
 }
 hole::~hole() {
-  LOG("~hole()\n");
+  // LOG("~hole()\n");
 }
 
 
