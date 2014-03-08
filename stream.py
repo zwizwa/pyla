@@ -57,14 +57,14 @@ def saleae_with(op, config=None, record=None, buftype=['memory']):
     # buf_op = pyla.compose_snk_op(buf_op, pyla.diff())
     
     saleae.connect_sink(buf_op)
-    return pyla.buf_gen(buf)
+    return buf.bytes()
 
 def saleae_raw():
     """Raw saleae byte sequence."""
     saleae = pyla.devices()[0]
     buf = pyla.memory()
     saleae.connect_sink(buf)
-    return pyla.buf_gen(buf)
+    return buf.bytes()
 
 
 

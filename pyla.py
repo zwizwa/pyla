@@ -37,8 +37,12 @@ class buffer_wrapper(io_wrapper):
         return self.core.read_copy()
     # Add some extra functionality.
     def bytes(self):
-        return buf_gen(self.core)
-    
+        """Convert pyla buffer to python byte generator."""
+        while 1:
+            for b in read_blocking(self.core):
+                yield(b)
+
+
 
 def maybe_attrs(ob, attrs):
     lst = []
@@ -103,8 +107,3 @@ def read_blocking(buf):
             time.sleep(.04)
 
 
-def buf_gen(buf):
-    """Convert pyla buffer to python byte generator."""
-    while 1:
-        for b in read_blocking(buf):
-            yield(b)
