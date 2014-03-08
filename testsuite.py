@@ -122,20 +122,22 @@ def test_stack():
 def test_multibuf():
     # Create stack program
     p = pyla.stack_program()
-    p.dup()           # duplicate input
-    p.op(pyla.diff()) # perform diff operation
+    p.dup()
+    p.save()
+    p.op(pyla.diff())
+    p.save()
 
     # Wrap it as a sink.
     mb = multibuf(p)
-
 
     # Push data into sink.
     indata = [1,1,0,0,1,1]
     mb.write(indata)
 
+    # Read results
     b = mb.read()
-    check([1,0,1], list(b[0]), "b[0]")
-    check(indata,  list(b[1]), "b[1]")
+    check([1,0,1], list(b[1]), "b[1]")
+    check(indata,  list(b[0]), "b[0]")
     
     print("test_multibuf done")
 
