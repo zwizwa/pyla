@@ -1,7 +1,7 @@
 /* RPN composition. */
 
-#ifndef _FORTH_H
-#define _FORTH_H
+#ifndef _RPN_H
+#define _RPN_H
 
 #include "pylacore.h"
 
@@ -141,4 +141,4 @@ class stack_op_sink : public sink {
 
 
 
-#endif // _FORTH_H
+#endif // _RPN_H

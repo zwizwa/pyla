@@ -91,10 +91,11 @@ def test_stack():
     s = pyla.chunk_stack()
     snk = pyla.stack_op_sink(p,s)
     snk.write([1,2,3])
-    print(s.top())
+    print(dir(s.top()))
+    print(list(s.top()))
 
 
-# test_stack()
+test_stack()
 test_uart()
 test_pyla_memmap()
 # test_saleae()
