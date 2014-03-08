@@ -63,12 +63,13 @@ def saleae_raw():
 
 
 
-# MULTIPLE OUTPUTS (not streams)
+# MULTIPLE OUTPUTS (not abstracted as streams)
+# FIXME: not sure yet how to present this in API...
 
 class multibuf:
-    def __init__(self, p):
-        self._p = p
-        self._snk = pyla.stack_op_sink(p)
+    def __init__(self, stack_prog):
+        self._p = stack_prog
+        self._snk = pyla.stack_op_sink(self._p)
         self._buf = []
         for i in range(self._snk.nb_outputs()):
             buf = pyla.memory()
@@ -76,8 +77,8 @@ class multibuf:
             self._snk.connect_output(i, buf)
     def write(self, b):
         self._snk.write(b)
-    def read(self):
+    def read_multi(self):
         return [b.read() for b in self._buf]
 
-        
-
+    def connect_saleae(self):
+        pyla.devices()[0].connect_sink(self._snk)

@@ -135,7 +135,7 @@ def test_multibuf():
     mb.write(indata)
 
     # Read results
-    b = mb.read()
+    b = mb.read_multi()
     check([1,0,1], list(b[1]), "b[1]")
     check(indata,  list(b[0]), "b[0]")
     
