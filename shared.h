@@ -56,9 +56,8 @@ wrap(chunk_stack)
 
 // multi-arg constructors are written out
 static inline boost::shared_ptr<stack_op_sink>
-shared_stack_op_sink(boost::shared_ptr<stack_op> program,
-                     boost::shared_ptr<chunk_stack> stack) {
-  return boost::shared_ptr<stack_op_sink>(new stack_op_sink(program, stack));
+shared_stack_op_sink(boost::shared_ptr<stack_op> program) {
+  return boost::shared_ptr<stack_op_sink>(new stack_op_sink(program));
 }
 
 static inline boost::shared_ptr<memmap>

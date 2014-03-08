@@ -47,6 +47,7 @@ def test_uart():
 
     # print(bytes(output))
 
+    print("test_uart done")
 
 
                                
@@ -57,6 +58,7 @@ def test_saleae():
     b = pyla.blackhole()
     d.connect_sink(b)
     time.sleep(1)
+    print("test_saleae done")
 
 
 
@@ -72,40 +74,53 @@ def test_buf(buf):
     while len(b_) > 0:
         b_ = buf.read()
         print(len(b_))
-    print("done")
+    print("test_buf done")
 
 #def test_pyla_memmap():
 #    print("test pila.memmap")
 #    buf = pylacore.memmap("/tmp/pyla.memmap.bin", 1200000)
 #    test_buf(buf)
 
-def test_pyla_memmap():
+def test_memmap():
     print("test pila.file")
     buf = pyla.memmap("/tmp/pyla.file.bin", 12000000)
     test_buf(buf)
+    print("test_memmap done")
 
         
 
 def test_stack():
+    # Create stack program
     p = pyla.stack_program()
-    s = pyla.chunk_stack()
-    snk = pyla.stack_op_sink(p,s)
-    b = [1,2,3]
-    snk.write(b)
-    check(list(s.top_copy()), b, "write to pop")
+    p.dup() # duplicate input
+    p.op(pyla.diff()) # perform diff operation
 
-    s.clear()
-    p.dup()
-    p.op(pyla.diff())
-    snk.write([1,1,0,0,1,1])
-    check([1,0,1], list(s.top_copy()), "diff")
+    # Wrap it into a sink API
+    snk = pyla.stack_op_sink(p)
+
+    # Attach output sinks
+    b1 = pyla.memory()
+    b2 = pyla.memory()
+    snk.add_output(b1)
+    snk.add_output(b2)
+
+    # Push data into sink.
+    indata = [1,1,0,0,1,1]
+    snk.write(indata)
+
+    # The rults appear in the buffers.
+    # First is result of diff operation
+    check([1,0,1], list(b1.read()), "b1")
+    # Second is the duplicated input
+    check(indata,  list(b2.read()), "b2")
+
+    print("test_stack done")
 
 
 
-
-test_stack()
 test_uart()
-test_pyla_memmap()
+test_stack()
+test_memmap()
 # test_saleae()
 
 

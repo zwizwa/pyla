@@ -133,24 +133,34 @@ class stack_program : public stack_op {
 };
 
 
-/* Present a stack_op operation as a sink object. */
+/* Present a stack_op operation as a sink object.  Data gets pushed
+   into write(), which triggers the program to run.  The result is
+   gathered from the stack and pushed into the output sinks.  */
 class stack_op_sink : public sink {
  public:
-  stack_op_sink(boost::shared_ptr<stack_op> program,
-                boost::shared_ptr<chunk_stack> stack) :
-    _program(program),
-    _stack(stack) { }
-
-  /* Sink interface. */
-  void write(boost::shared_ptr<chunk> input) {
-    _stack->clear();
-    _stack->push(input);
-    _program->run(*_stack);
+ stack_op_sink(boost::shared_ptr<stack_op> program) :
+    _program(program) { }
+  void add_output(boost::shared_ptr<sink> s) { 
+    _out_sinks.push_back(s);
   }
-
+  void write(boost::shared_ptr<chunk> input) {
+    _stack.clear();
+    _stack.push(input);
+    _program->run(_stack);
+    _move_to_out_sinks();
+  }
+  
  private:
-  boost::shared_ptr<stack_op>    _program;
-  boost::shared_ptr<chunk_stack> _stack;
+  void _move_to_out_sinks() {
+    for (int i = 0; i < _out_sinks.size(); i++) {
+      if (!_stack.empty()) {
+        _out_sinks[i]->write(_stack.pop());
+      }
+    }
+  }
+  chunk_stack _stack;
+  boost::shared_ptr<stack_op> _program;
+  std::vector<boost::shared_ptr<sink> > _out_sinks;
 };
 
 
