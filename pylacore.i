@@ -7,6 +7,8 @@
 #include "uart.h"
 #include "syncser.h"
 #include "saleae.h"
+#include "compose.h"
+#include "rpn.h"
 #include "shared.h"
 %}
 
@@ -26,19 +28,19 @@
 %shared_ptr(compose_op_op)
 %shared_ptr(compose_op_src)
 %shared_ptr(compose_snk_op)
+%shared_ptr(stack_op_sink)
 
 %include "pylacore.h"
 %include "uart.h"
 %include "syncser.h"
+%include "compose.h"
+%include "rpn.h"
 %include "shared.h"
 %include "saleae.h"
 
 
 %template(chunk) std::vector<unsigned char>;
 %shared_ptr(chunk)
-
-%template(chunk_stack) twostack<chunk>;
-%shared_ptr(chunk_stack)
 
 %template(salea_device_list) std::vector<saleae *>;
 

@@ -86,7 +86,8 @@ def test_pyla_memmap():
 
         
 
-
+def test_stack():
+    p = pylacore.program
 
 
 
