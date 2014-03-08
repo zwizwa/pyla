@@ -7,6 +7,8 @@ import pylacore
 import time
 import re
 
+saleae = pylacore.saleae
+
 # FIXME.  Use condition variables and multiple threads instead?
 _poll = []
 def register_poll(method):

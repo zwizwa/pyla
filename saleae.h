@@ -25,6 +25,7 @@ class saleae : public cosink, public sampler {
   static std::vector<saleae*> devices();
   static saleae *register_device(U64 device_id, GenericInterface* device_interface);
   static saleae *find_device(U64 device_id);
+  static void start(double sample_rate);
 
  private:
   saleae(U64 device_id, GenericInterface* device_interface);
@@ -40,6 +41,7 @@ class saleae : public cosink, public sampler {
      Never delete a saleae object, nor remove it from this list. */
   static std::vector<saleae*> _device_map;
   static mutex *_device_map_mutex;
+  static double _default_samplerate;
 };
 
 #endif // _SALEAE_H

@@ -30,6 +30,7 @@ def filter_diff(seq):
 def saleae_with(op, record=None, buftype=['memory']):
     """Combine saleae, analyzer+config, buffer to make a python sequence."""
     saleae = pyla.devices()[0]
+    op.set_samplerate(saleae.get_samplerate())
     buf = getattr(pyla, buftype[0])(*buftype[1:])
     if record:
         buf.set_log(record)

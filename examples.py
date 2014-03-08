@@ -3,6 +3,8 @@ from stream import *
 
 # DUMP SPI as ASCII
 
+pyla.saleae.start(4000000)
+
 def saleae_spi():
     return saleae_with(
         syncser().config({

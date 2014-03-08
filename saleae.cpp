@@ -18,7 +18,6 @@ static void __stdcall OnDisconnect( U64 device_id, void* user_data );
 static void __stdcall OnReadData( U64 device_id, U8* data, U32 data_length, void* user_data );
 static void __stdcall OnWriteData( U64 device_id, U8* data, U32 data_length, void* user_data );
 static void __stdcall OnError( U64 device_id, void* user_data );
-static void _start();
 
 void __stdcall OnReadData( U64 device_id, U8* data, U32 data_length, void* user_data ) {
   saleae::find_device(device_id)->on_read(data, data_length);
@@ -55,11 +54,12 @@ void __stdcall OnConnect( U64 device_id, GenericInterface* device_interface, voi
 /* saleae class */
 std::vector<saleae*> saleae::_device_map;
 mutex* saleae::_device_map_mutex;
+double saleae::_default_samplerate;
 
 saleae::saleae(U64 device_id, GenericInterface* device_interface) :
   _device_id(device_id),
   _device_interface(device_interface),
-  _samplerate(PYLA_DEFAULT_SAMPLERATE),
+  _samplerate(_default_samplerate),
   _sink(shared_ptr<sink>(new hole())) { }
 
 saleae::~saleae() {
@@ -67,20 +67,19 @@ saleae::~saleae() {
   LOG("salea.cpp:~saleae()\n");
 }
 
-void saleae::_start() {
-  static int global_init;
+void saleae::start(double samplerate) {
   if (!_device_map_mutex) {
+    _default_samplerate = samplerate;
     _device_map_mutex = new mutex();
     DevicesManagerInterface::RegisterOnConnect( &OnConnect );
     DevicesManagerInterface::RegisterOnDisconnect( &OnDisconnect );
     DevicesManagerInterface::BeginConnect();
-    global_init = 1;
     LOG("salea.cpp:BeginConnect (waiting for Connect)\n");
   }
 }
 
 std::vector<saleae*> saleae::devices() {
-  saleae::_start();
+  saleae::start(PYLA_DEFAULT_SAMPLERATE);
   _device_map_mutex->lock();
   std::vector<saleae*> _map_copy = _device_map;
   _device_map_mutex->unlock();
