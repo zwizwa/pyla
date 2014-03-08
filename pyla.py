@@ -15,44 +15,48 @@ import re
 class io_wrapper:
     def __init__(self, ob):
         self.core = ob
-
-    # Override to present a simpler API in Python.
-    #       process(in,out)  =>  out = process(in)
-    #       read(in)         =>  in  = read()
-    # 
-    # The original methods are still available as:
-    #       .core.process(o, i)
-    #       .core.read(i)
-    #       .core.write(i)
-
-    def process(self, inbuf):
-        # FIXME: array to chunk& conversion seems to need an
-        # intermediate step going through a copy.
-        i = pylacore.chunk(inbuf) 
-        o = pylacore.chunk()
-        self.core.process(o, i)
-        return o
-
-    # Add some extra functionality.
-    def bytes(self):
-        return buf_gen(self.core)
-
-    def write(self, inbuf):
-        self.core.write_copy(pylacore.chunk(inbuf))
-
-    def read(self):
-        return self.core.read_copy()
-
-    # Delegate rest: behave as a subclass.
     def __getattr__(self, attr):
         return getattr(self.core, attr)
 
+class process_wrapper(io_wrapper):
+    def __init__(self, ob):
+        super(process_wrapper, self).__init__(ob)
+    def process(self, inbuf):
+        i = pylacore.chunk(inbuf)  # copy to keep swig happy
+        o = pylacore.chunk()       # we need to alloc output
+        self.core.process(o, i)
+        return o
+
+class buffer_wrapper(io_wrapper):
+    def __init__(self, ob):
+        super(buffer_wrapper, self).__init__(ob)
+    # Add some copying to keep swig happy.
+    def write(self, inbuf):
+        self.core.write_copy(pylacore.chunk(inbuf))
+    def read(self):
+        return self.core.read_copy()
+    # Add some extra functionality.
+    def bytes(self):
+        return buf_gen(self.core)
+    
+
+def maybe_attrs(ob, attrs):
+    lst = []
+    for attr in attrs:
+        try:
+            lst.append(getattr(ob, attr))
+        except:
+            pass
+    return lst
     
 def io_wrapper_factory(cons):
     def new_cons(*args):
         ob = cons(*args)
-        # FIXME: do not wrap objects without process/read/write interface
-        return io_wrapper(ob)
+        if 0 < len(maybe_attrs(ob, ['read','write'])):
+            return buffer_wrapper(ob)
+        if 0 < len(maybe_attrs(ob, ['process'])):
+            return process_wrapper(ob)
+        return ob
     return new_cons
 
 

@@ -263,3 +263,12 @@ Entry: kicking out the saleae lib?
 Date: Fri Mar  7 19:44:32 CET 2014
 
 It should be straightforward to work with libusb directly.
+
+
+
+Entry: rpn dataflow
+Date: Sat Mar  8 15:59:17 CET 2014
+
+Seems to work.  Next: how to actually make this useful with 2 output
+streams on the console?
+
