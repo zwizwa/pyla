@@ -23,6 +23,8 @@ def saleae_uart():
             'channel'  : 3,
             'baudrate' : 115200,
         })
+
+
     
 
 print_hex(saleae_spi())

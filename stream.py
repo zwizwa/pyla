@@ -27,18 +27,6 @@ def filter_diff(seq):
             yield(b)
         last_b = b
 
-def apply_config(obj, config):
-    """Apply config dict as set_ methods."""
-    print("config: %s" % obj)
-    if config:
-        for (key, val) in config.items():
-            try:
-                print("config: %s=%d" % (key, val))
-                getattr(obj, 'set_' + key)(val)
-            except Exception as e:
-                print("WARNING: set_%s not defined: %s" % (key, e))
-    return obj
-
 def saleae_with(op, config=None, record=None, buftype=['memory']):
     """Combine saleae, analyzer+config, buffer to make a python sequence."""
     apply_config(op, config)

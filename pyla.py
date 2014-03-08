@@ -32,6 +32,9 @@ class process_wrapper(io_wrapper):
         o = pylacore.chunk()       # we need to alloc output
         self.core.process(o, i)
         return o
+    def config(self, c):
+        apply_config(self.core, c)
+        return self
 
 class buffer_wrapper(io_wrapper):
     def __init__(self, ob):
@@ -108,5 +111,15 @@ def devices():
         devices = pylacore.saleae.devices()
     return devices
 
-
+def apply_config(obj, config):
+    """Apply config dict as set_ methods."""
+    print("config: %s" % obj)
+    if config:
+        for (key, val) in config.items():
+            try:
+                print("config: %s=%d" % (key, val))
+                getattr(obj, 'set_' + key)(val)
+            except Exception as e:
+                print("WARNING: set_%s not defined: %s" % (key, e))
+    return obj
 
