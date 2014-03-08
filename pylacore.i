@@ -52,4 +52,3 @@
 %template(salea_device_list) std::vector<saleae *>;
 
 
-

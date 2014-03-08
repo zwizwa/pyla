@@ -95,15 +95,15 @@ def test_stack():
     check(list(s.top_copy()), b, "write to pop")
 
     s.clear()
-    p.compile_dup()
-    p.compile(pyla.diff())
+    p.dup()
+    p.op(pyla.diff())
     snk.write([1,1,0,0,1,1])
     check([1,0,1], list(s.top_copy()), "diff")
 
 
 
 
-# test_stack()
+test_stack()
 test_uart()
 test_pyla_memmap()
 # test_saleae()
@@ -111,3 +111,4 @@ test_pyla_memmap()
 
 print("IGNORE error below:")
 
+    

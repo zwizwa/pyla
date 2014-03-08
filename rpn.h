@@ -14,24 +14,24 @@
 class chunk_stack {
  public:
  chunk_stack() 
-  : _stack(std::list<boost::shared_ptr<chunk> >()),
-    _save_stack(std::list<boost::shared_ptr<chunk> >()) {}
+  : _operands(std::list<boost::shared_ptr<chunk> >()),
+    _save    (std::list<boost::shared_ptr<chunk> >()) {}
 
 
   /* Data i/o */
   boost::shared_ptr<chunk> top() {
-    return _stack.front();
+    return _operands.front();
   }
   boost::shared_ptr<chunk> pop() {
     boost::shared_ptr<chunk> c = top();
-    _stack.pop_front();
+    _operands.pop_front();
     return c;
   }
   void push(boost::shared_ptr<chunk> c) { 
-    _stack.push_front(c); 
+    _operands.push_front(c); 
   }
-  bool empty() { return _stack.empty(); }
-  int size() { return _stack.size(); }
+  bool empty() { return _operands.empty(); }
+  int size() { return _operands.size(); }
 
   chunk top_copy() {
     // FIXME: Something is wrong with swig wrapping of shared pointers..
@@ -52,19 +52,20 @@ class chunk_stack {
     push(top());
   }
   void save() {
-    _save_stack.push_front(pop());
+    _save.push_front(pop());
   }
   void load() {
-    push(_save_stack.front());
-    _save_stack.pop_front();
+    push(_save.front());
+    _save.pop_front();
   }
   void clear() {
-    while (!_stack.empty()) { drop(); }
+    while (!_operands.empty()) { drop(); }
+    while (!_save.empty()) { _save.pop_front(); }
   }
 
  private:
-  std::list<boost::shared_ptr<chunk> > _stack;
-  std::list<boost::shared_ptr<chunk> > _save_stack;
+  std::list<boost::shared_ptr<chunk> > _operands;
+  std::list<boost::shared_ptr<chunk> > _save;
 };
 
 /* Perform operation on stack.
@@ -99,32 +100,35 @@ class stack_compute : public stack_op {
 class stack_program : public stack_op {
  public:
   /* Construct a program. */
-  void compile(boost::shared_ptr<operation> op) { _program.push_back(new stack_compute(op)); }
-  void compile(void(chunk_stack::*op)())        { _program.push_back(new stack_manip(op)); }
-
-  /* Manually wrap these for swig. */
-  void compile_dup()  { compile(&chunk_stack::dup);  }
-  void compile_drop() { compile(&chunk_stack::drop); }
-  void compile_load() { compile(&chunk_stack::load); }
-  void compile_save() { compile(&chunk_stack::save); }
+  void op(boost::shared_ptr<operation> op) {
+    _program.push_back(new stack_compute(op));
+  }
+  void dup()  { _op(&chunk_stack::dup);  }
+  void drop() { _op(&chunk_stack::drop); }
+  void load() { _op(&chunk_stack::load); }
+  void save() { _op(&chunk_stack::save); }
 
   /* Run program */
   void run(chunk_stack& s) {
-    for (std::list<stack_op*>::const_iterator p = _program.begin(), end = _program.end();
+    for (std::list<stack_op*>::const_iterator
+           p   = _program.begin(),
+           end = _program.end();
          p != end;
          ++p) {
       (*p)->run(s);
     }
   }
   /* Cleanup */
-  void clear() {
+  ~stack_program() { 
     while (!_program.empty()) {
       delete(_program.front());
       _program.pop_front();
     }
   }
-  ~stack_program() { clear(); }
  private:
+  void _op(void(chunk_stack::*op)()) {
+    _program.push_back(new stack_manip(op));
+  }
   std::list<stack_op*> _program;
 };
 
