@@ -27,9 +27,8 @@ def filter_diff(seq):
             yield(b)
         last_b = b
 
-def saleae_with(op, config=None, record=None, buftype=['memory']):
+def saleae_with(op, record=None, buftype=['memory']):
     """Combine saleae, analyzer+config, buffer to make a python sequence."""
-    apply_config(op, config)
     saleae = pyla.devices()[0]
     buf = getattr(pyla, buftype[0])(*buftype[1:])
     if record:
