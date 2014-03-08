@@ -117,21 +117,23 @@ class stack_program : public stack_op {
 /* Present a stack_op operation as a sink object. */
 class stack_op_sink : public sink {
  public:
- stack_op_sink(boost::shared_ptr<stack_op> program) : 
-  _program(program) { }
+  stack_op_sink(boost::shared_ptr<stack_op> program,
+                boost::shared_ptr<chunk_stack> stack) :
+    _program(program),
+    _stack(stack) { }
 
   /* Sink interface. */
   void write(chunk& input) {
-    _stack.clear();
+    _stack->clear();
     // FIXME: avoid copy
     boost::shared_ptr<chunk> c = boost::shared_ptr<chunk>(new chunk(input));
-    _stack.push(c);
-    _program->run(_stack);
+    _stack->push(c);
+    _program->run(*_stack);
   }
 
  private:
-  boost::shared_ptr<stack_op> _program;
-  chunk_stack _stack;
+  boost::shared_ptr<stack_op>    _program;
+  boost::shared_ptr<chunk_stack> _stack;
 };
 
 

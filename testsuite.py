@@ -87,10 +87,14 @@ def test_pyla_memmap():
         
 
 def test_stack():
-    p = pylacore.program
+    p = pyla.stack_program()
+    s = pyla.chunk_stack()
+    snk = pyla.stack_op_sink(p,s)
+    snk.write([1,2,3])
+    print(s.top())
 
 
-
+# test_stack()
 test_uart()
 test_pyla_memmap()
 # test_saleae()

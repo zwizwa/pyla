@@ -53,7 +53,9 @@ class io_wrapper:
     
 def io_wrapper_factory(cons):
     def new_cons(*args):
-        return io_wrapper(cons(*args))
+        ob = cons(*args)
+        # FIXME: do not wrap objects without process/read/write interface
+        return io_wrapper(ob)
     return new_cons
 
 
