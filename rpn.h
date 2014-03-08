@@ -31,6 +31,12 @@ class chunk_stack {
     _stack.push_front(c); 
   }
 
+  chunk top_copy() {
+    // FIXME: Something is wrong with swig wrapping of shared pointers..
+    chunk c = *top();
+    return c;
+  }
+
   /* The void (*)() methods can be used in chunk_program. */
 
   void push() {

@@ -91,8 +91,7 @@ def test_stack():
     s = pyla.chunk_stack()
     snk = pyla.stack_op_sink(p,s)
     snk.write([1,2,3])
-    print(dir(s.top()))
-    print(list(s.top()))
+    print(list(s.top_copy()))
 
 
 test_stack()
