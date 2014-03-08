@@ -259,3 +259,7 @@ object construction in Python.  Otherwise it's going to be a mess..
 So the only real option then is boost?
 
 
+Entry: kicking out the saleae lib?
+Date: Fri Mar  7 19:44:32 CET 2014
+
+It should be straightforward to work with libusb directly.
