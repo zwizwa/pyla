@@ -32,6 +32,7 @@ namespace std {
   %template(UnsignedCharVector) std::vector<unsigned char>;
   %template(SaleaePointerVector) std::vector<saleae *>;
   %template(SharedChunk) boost::shared_ptr<std::vector<unsigned char> >;
+  %template(ChunkStack) twostack<chunk>;
 }
 
 %include "pylacore.h"

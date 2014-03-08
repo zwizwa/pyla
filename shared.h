@@ -105,6 +105,7 @@ class twostack {
   boost::shared_ptr<T> pop() { boost::shared_ptr<T> c = top(); drop(); return c; }
   boost::shared_ptr<T> top() { return _stack.front(); }
   void push(boost::shared_ptr<T> c) { _stack.push_front(c); }
+  void push() {boost::shared_ptr<T> c = boost::shared_ptr<T>(new T()); push(c); }
   void dup() { push(top()); }
 
   void save() { _save_stack.push_front(pop()); }
