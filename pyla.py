@@ -58,7 +58,7 @@ def io_wrapper_factory(cons):
 
 
 
-# The make_shared_ functions are wrappers around the base objects,
+# The shared_xyz functions are wrappers around the xyz base objects,
 # creating boost::shared_ptr to allow proper memory management for
 # objects shared between Python and C++ code (callbacks, composition,
 # ...).
@@ -66,7 +66,7 @@ def io_wrapper_factory(cons):
 #   etc...
 
 for attrib in dir(pylacore):
-    match = re.match("make_shared_(.*)", attrib)
+    match = re.match("shared_(.*)", attrib)
     pyla = globals()
     if match:
         dst_name = match.group(1)
