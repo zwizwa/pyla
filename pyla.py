@@ -1,3 +1,4 @@
+#!/usr/bin/python3.3 -i
 import sys
 if sys.version_info[0] != 3:
     raise NameError("Python version 3 needed.")
@@ -18,11 +19,19 @@ class io_wrapper:
     # Just override process and read to present a different API in
     # python.  E.g.  process(in,out)  =>  out = process(in)
     def process(self, inbuf):
-        return pylacore.copy_process(self._ob, inbuf)
+        # FIXME: array to chunk& conversion seems to need an
+        # intermediate step going through a copy
+        i = pylacore.chunk(inbuf) 
+        o = pylacore.chunk()
+        self._ob.process(o, i)
+        return o
     def read(self):
-        return pylacore.copy_read(self._ob)
+        o = pylacore.chunk()
+        self._ob.read(o)
+        return o
     def write(self, inbuf):
-        pylacore.copy_write(self._ob, inbuf)
+        i = pylacore.chunk(inbuf) 
+        self._ob.write(i)
 
     # Add some extra functionality.
     def bytes(self):

@@ -30,7 +30,7 @@ typedef std::vector<unsigned char> chunk;
 /* Externally triggered data processor. */
 class operation {
  public:
-  virtual void process(chunk&, chunk&) = 0;
+  virtual void process(chunk& output, chunk& input) = 0;
   virtual ~operation() {}
 };
 

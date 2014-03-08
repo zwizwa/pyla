@@ -9,6 +9,8 @@
 #include "saleae.h"
 #include "shared.h"
 %}
+
+
 %include "boost_shared_ptr.i"
 %shared_ptr(frontend)
 %shared_ptr(operation)
@@ -24,20 +26,23 @@
 %shared_ptr(compose_op_op)
 %shared_ptr(compose_op_src)
 %shared_ptr(compose_snk_op)
-%shared_ptr(chunkstack)
-%shared_ptr(chunk)
-
-namespace std {
-  %template(UnsignedIntVector) std::vector<unsigned int>;
-  %template(UnsignedCharVector) std::vector<unsigned char>;
-  %template(SaleaePointerVector) std::vector<saleae *>;
-  %template(SharedChunk) boost::shared_ptr<std::vector<unsigned char> >;
-  %template(ChunkStack) twostack<chunk>;
-}
 
 %include "pylacore.h"
 %include "uart.h"
 %include "syncser.h"
 %include "shared.h"
 %include "saleae.h"
+
+
+%template(chunk) std::vector<unsigned char>;
+%shared_ptr(chunk)
+
+%template(chunk_stack) twostack<chunk>;
+%shared_ptr(chunk_stack)
+
+%template(salea_device_list) std::vector<saleae *>;
+
+
+
+
 

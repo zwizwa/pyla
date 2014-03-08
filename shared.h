@@ -115,7 +115,7 @@ class twostack {
   std::list<boost::shared_ptr<T> > _save_stack;
 };
 
-typedef twostack<chunk> chunkstack ;
+typedef twostack<chunk> chunk_stack ;
 
 
 
@@ -131,15 +131,9 @@ wrap(syncser)
 wrap(memory)
 wrap(diff)
 wrap(hole)
-wrap(chunk)
-wrap(chunkstack)
 
 
 // multi-arg constructors are written out
-static inline boost::shared_ptr<chunk>
-make_shared_chunk(uint64_t size) {
-  return boost::shared_ptr<chunk>(new chunk(size));
-}
 
 static inline boost::shared_ptr<memmap>
 make_shared_memmap(const char *filename, uint64_t size) {
@@ -162,29 +156,6 @@ make_shared_compose_op_src(boost::shared_ptr<operation> op,
   return boost::shared_ptr<compose_op_src>(new compose_op_src(op, src));
 }
 
-
-
-
-
-/* These copy to/from vector<unsigned char> to make interop with
-   python arrays possible.
-   FIXME: Find a way to use shared_ptr<chunk> */
-static inline std::vector<unsigned char>
-copy_process(operation *op, std::vector<unsigned char> input) {
-  std::vector<unsigned char> output;
-  op->process(output, input);
-  return output;
-}
-static inline std::vector<unsigned char>
-copy_read(source *src) {
-  std::vector<unsigned char> output;
-  src->read(output);
-  return output;
-}
-static inline void
-copy_write(sink* snk, std::vector<unsigned char> input) {
-  snk->write(input);
-}
 
 
 
