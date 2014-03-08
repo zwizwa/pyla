@@ -63,3 +63,21 @@ def saleae_raw():
 
 
 
+# MULTIPLE OUTPUTS (not streams)
+
+class multibuf:
+    def __init__(self, p):
+        self._p = p
+        self._snk = pyla.stack_op_sink(p)
+        self._buf = []
+        for i in range(self._snk.nb_outputs()):
+            buf = pyla.memory()
+            self._buf.append(buf)
+            self._snk.connect_output(i, buf)
+    def write(self, b):
+        self._snk.write(b)
+    def read(self):
+        return [b.read() for b in self._buf]
+
+        
+

@@ -272,3 +272,13 @@ Date: Sat Mar  8 15:59:17 CET 2014
 Seems to work.  Next: how to actually make this useful with 2 output
 streams on the console?
 
+
+Entry: multilog
+Date: Sat Mar  8 19:29:27 CET 2014
+
+The gui should really just be a multilog.
+
+1. Set up a notational shorthand for a polling multi-out rpn program.
+
+2. Display results in pylag
+

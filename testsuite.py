@@ -87,6 +87,8 @@ def test_memmap():
     test_buf(buf)
     print("test_memmap done")
 
+
+
         
 
 def test_stack():
@@ -109,18 +111,37 @@ def test_stack():
     indata = [1,1,0,0,1,1]
     snk.write(indata)
 
-    # The rults appear in the buffers.
+    # The results appear in the buffers.
     # First is result of diff operation
-    check([1,0,1], list(b[0].read()), "b1")
+    check([1,0,1], list(b[0].read()), "b[0]")
     # Second is the duplicated input
-    check(indata,  list(b[1].read()), "b2")
+    check(indata,  list(b[1].read()), "b[1]")
 
     print("test_stack done")
 
+def test_multibuf():
+    # Create stack program
+    p = pyla.stack_program()
+    p.dup()           # duplicate input
+    p.op(pyla.diff()) # perform diff operation
 
+    # Wrap it as a sink.
+    mb = multibuf(p)
+
+
+    # Push data into sink.
+    indata = [1,1,0,0,1,1]
+    mb.write(indata)
+
+    b = mb.read()
+    check([1,0,1], list(b[0]), "b[0]")
+    check(indata,  list(b[1]), "b[1]")
+    
+    print("test_multibuf done")
 
 test_uart()
 test_stack()
+test_multibuf()
 test_memmap()
 # test_saleae()
 

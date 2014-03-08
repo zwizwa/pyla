@@ -62,6 +62,9 @@ class chunk_stack {
     while (!_operands.empty()) { drop(); }
     while (!_save.empty()) { _save.pop_front(); }
   }
+  void load_all() {
+    while (!_save.empty()) { load(); }
+  }
 
  private:
   std::list<boost::shared_ptr<chunk> > _operands;
@@ -143,8 +146,7 @@ class stack_op_sink : public sink {
     _program(program) { 
       /* Perform a dummy run to determine the number of outputs. */
       boost::shared_ptr<chunk> probe = boost::shared_ptr<chunk>(new chunk());
-      _stack.push(probe);
-      _program->run(_stack);
+      _run(probe);
       /* Initialize output vector with holes. */
       for (int i = 0; i<_stack.size(); i++) {
         boost::shared_ptr<hole> h = boost::shared_ptr<hole>(new hole());
@@ -155,9 +157,7 @@ class stack_op_sink : public sink {
     if (index < _outputs.size()) _outputs[index] = s;
   }
   void write(boost::shared_ptr<chunk> input) {
-    _stack.clear();
-    _stack.push(input);
-    _program->run(_stack);
+    _run(input);
     _move_to_outputs();
   }
   int nb_outputs() {
@@ -165,6 +165,12 @@ class stack_op_sink : public sink {
   }
   
  private:
+  void _run(boost::shared_ptr<chunk> input) {
+    _stack.clear();
+    _stack.push(input);
+    _program->run(_stack);
+    _stack.load_all(); // simplifies programs
+  }
   void _move_to_outputs() {
     int index = 0;
     while(!_stack.empty()) {
