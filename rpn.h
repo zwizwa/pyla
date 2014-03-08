@@ -30,6 +30,8 @@ class chunk_stack {
   void push(boost::shared_ptr<chunk> c) { 
     _stack.push_front(c); 
   }
+  bool empty() { return _stack.empty(); }
+  int size() { return _stack.size(); }
 
   chunk top_copy() {
     // FIXME: Something is wrong with swig wrapping of shared pointers..
@@ -99,6 +101,13 @@ class stack_program : public stack_op {
   /* Construct a program. */
   void compile(boost::shared_ptr<operation> op) { _program.push_back(new stack_compute(op)); }
   void compile(void(chunk_stack::*op)())        { _program.push_back(new stack_manip(op)); }
+
+  /* Manually wrap these for swig. */
+  void compile_dup()  { compile(&chunk_stack::dup);  }
+  void compile_drop() { compile(&chunk_stack::drop); }
+  void compile_load() { compile(&chunk_stack::load); }
+  void compile_save() { compile(&chunk_stack::save); }
+
   /* Run program */
   void run(chunk_stack& s) {
     for (std::list<stack_op*>::const_iterator p = _program.begin(), end = _program.end();

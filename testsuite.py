@@ -95,9 +95,7 @@ def test_stack():
     check(list(s.top_copy()), b, "write to pop")
 
     s.clear()
-    dup = pylacore.chunk_stack.dup
-    print(dup)
-    p.compile(dup)
+    p.compile_dup()
     p.compile(pyla.diff())
     snk.write([1,1,0,0,1,1])
     check([1,0,1], list(s.top_copy()), "diff")
