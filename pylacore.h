@@ -13,9 +13,11 @@
 #include <vector>
 #include <list>
 #include <memory>
-#include <mutex.h>
 #include <stdint.h>
 #include <boost/shared_ptr.hpp>
+#include <boost/thread/mutex.hpp>
+typedef boost::mutex mutex;
+
 
 /* INTERFACES */
 
