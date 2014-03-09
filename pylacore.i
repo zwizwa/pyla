@@ -7,7 +7,6 @@
 #include "uart.h"
 #include "syncser.h"
 #include "saleae.h"
-#include "compose.h"
 #include "rpn.h"
 #include "shared.h"
 %}
@@ -25,9 +24,6 @@
 %shared_ptr(hole)
 %shared_ptr(memory)
 %shared_ptr(memmap)
-%shared_ptr(compose_op_op)
-%shared_ptr(compose_op_src)
-%shared_ptr(compose_snk_op)
 %shared_ptr(stack_op)
 %shared_ptr(stack_manip)
 %shared_ptr(stack_compute)
@@ -38,7 +34,6 @@
 %include "pylacore.h"
 %include "uart.h"
 %include "syncser.h"
-%include "compose.h"
 %include "rpn.h"
 %include "shared.h"
 %include "saleae.h"
