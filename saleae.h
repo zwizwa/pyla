@@ -35,12 +35,12 @@ class saleae : public cosink, public sampler {
   GenericInterface* _device_interface;
   double _samplerate;
   boost::shared_ptr<sink> _sink;
-  mutex _sink_mutex;
+  boost::mutex _sink_mutex;
 
   /* Registry owns saleae instances
      Never delete a saleae object, nor remove it from this list. */
   static std::vector<saleae*> _device_map;
-  static mutex *_device_map_mutex;
+  static boost::mutex *_device_map_mutex;
   static double _default_samplerate;
 };
 

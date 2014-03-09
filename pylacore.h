@@ -16,8 +16,6 @@
 #include <stdint.h>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
-typedef boost::mutex mutex;
-
 
 /* INTERFACES */
 
@@ -133,7 +131,7 @@ class memory : public buffer {
   ~memory();
  private:
   std::list<boost::shared_ptr<chunk> > _buf;
-  mutex _mutex;
+  boost::mutex _mutex;
   FILE *_log;
 };
 

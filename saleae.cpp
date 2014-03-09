@@ -53,7 +53,7 @@ void __stdcall OnConnect( U64 device_id, GenericInterface* device_interface, voi
 
 /* saleae class */
 std::vector<saleae*> saleae::_device_map;
-mutex* saleae::_device_map_mutex;
+boost::mutex* saleae::_device_map_mutex;
 double saleae::_default_samplerate;
 
 saleae::saleae(U64 device_id, GenericInterface* device_interface) :
@@ -70,7 +70,7 @@ saleae::~saleae() {
 void saleae::start(double samplerate) {
   if (!_device_map_mutex) {
     _default_samplerate = samplerate;
-    _device_map_mutex = new mutex();
+    _device_map_mutex = new boost::mutex();
     DevicesManagerInterface::RegisterOnConnect( &OnConnect );
     DevicesManagerInterface::RegisterOnDisconnect( &OnDisconnect );
     DevicesManagerInterface::BeginConnect();
