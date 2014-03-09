@@ -32,24 +32,48 @@ def filter_diff(seq):
         last_b = b
 
 # SOURCES
+
+# This function is a good example of the full architecture:
+# - sampling devices connect to sinks (sampler ISR/callback calls 'write')
+# - operations process input to output, but don't perform memory management
+# - programs combine operations, using a chunk stack to provide chunk memory management
+# - programs exposed as sinks can be attached to sampling devices.  outputs are pushed to other (low-rate) sinks.
+# - buffers adapt sink interfaces ('write' = data push) to source interfaces ('read' = data pull)
+# - python generators are polled sources
+
+
 def saleae_with(op, record=None, buftype=['memory']):
     """Combine saleae, analyzer+config, buffer to make a python sequence."""
+
+    # Get first available sampler device.
     saleae = pyla.devices()[0]
+
+    # Pass the samplerate to the operation.
     op.set_samplerate(saleae.get_samplerate())
+
+    # Create the buffer that will connect the sink and source
+    # interfaces, resp. data push by analyzer and data pull by python
+    # script.
     buf = getattr(pyla, buftype[0])(*buftype[1:])
     if record:
         buf.set_log(record)
 
-    # use buffer as a sink, and create a new sink to pass to the
-    # saleae callback (co-sink).  we'll be reading the other side of
-    # buf (buffer is also a source).
+    # Wrap operation in a stack program
+    p = pyla.stack_program()
+    p.op(op)
 
-    buf_op = pyla.compose_snk_op(buf, op)
+    # Wrap program in a "push" evaluator exposing a sink interface.
+    snk = pyla.stack_op_sink(p)
 
-    # FIXME: Add possibility for difference encoding frontend?
-    # buf_op = pyla.compose_snk_op(buf_op, pyla.dedup())
-    
+    # Connect the evaluator output to the buffer.  The program has
+    # only one output.
+    snk.connect_output(0, buf)
+
+    # Pass the sink interface to the sampler.
     saleae.connect_sink(buf_op)
+
+    # The other side of the buffer then presents a source interface
+    # which is polled to create a python byte generator.
     return buf.bytes()
 
 def saleae_raw():
@@ -58,7 +82,6 @@ def saleae_raw():
     buf = pyla.memory()
     saleae.connect_sink(buf)
     return buf.bytes()
-
 
 
 
