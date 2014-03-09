@@ -1,6 +1,9 @@
 project(pyla)
 cmake_minimum_required (VERSION 2.8.6)
 
+find_package(Boost COMPONENTS system REQUIRED)
+
+
 # http://www.swig.org/Doc1.3/Introduction.html#Introduction_build_system
 # http://swig.10945.n7.nabble.com/Unable-to-find-string-td8928.html
 FIND_PACKAGE(SWIG REQUIRED)
@@ -16,6 +19,8 @@ SWIG_ADD_MODULE(pylacore python pylacore.i
   saleae.cpp
   syncser.cpp
 )
+
+
 
 include(ExternalProject)
 ExternalProject_Add(SaleaeDeviceSdk
@@ -45,5 +50,6 @@ SET(SALEADEVICE_LIBRARY ${SALEADEVICESDK_LIB}/libSaleaeDevice64.so) #FIXME
 
 SWIG_LINK_LIBRARIES(pylacore
   ${PYTHON_LIBRARIES}
+  ${Boost_SYSTEM_LIBRARY}
   ${SALEADEVICE_LIBRARY})
 
