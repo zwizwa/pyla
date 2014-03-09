@@ -123,18 +123,11 @@ void saleae::connect_sink(shared_ptr<sink> s) {
   _sink = s;
   _sink_mutex.unlock();
 }
-
-
-
-static void dont_delete (chunk* p) {
-  LOG("dont_delete(%p)\n", p);
-}
-
 void saleae::on_read(U8* data, U32 data_length) {
   _sink_mutex.lock();
   if (_sink) {
     boost::shared_ptr<chunk> c = 
-      boost::shared_ptr<chunk>(new chunk(data_length), dont_delete);
+      boost::shared_ptr<chunk>(new chunk(data_length));
     c->assign(data, data + data_length);
     _sink->write(c);
   }
