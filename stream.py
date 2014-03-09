@@ -70,7 +70,7 @@ def saleae_with(op, record=None, buftype=['memory']):
     snk.connect_output(0, buf)
 
     # Pass the sink interface to the sampler.
-    saleae.connect_sink(buf_op)
+    saleae.connect_sink(snk)
 
     # The other side of the buffer then presents a source interface
     # which is polled to create a python byte generator.
