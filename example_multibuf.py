@@ -32,9 +32,10 @@ def print_uart_and_spi():
     mb.connect(devices()[0])
 
     # Print both streams to console.
+    count = 0
     while True:
         [buf_spi, buf_ascii] = mb.read_multi()
-        print_hex  (buf_spi)
+        count = print_hex(buf_spi, count_init = count, newline='\r')
         print_ascii(buf_ascii)
         time.sleep(0.1)
 

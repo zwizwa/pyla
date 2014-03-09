@@ -12,15 +12,17 @@ def print_ascii(seq, log = sys.stderr):
         log.write(chr(b))
         log.flush()
 
-def print_hex(seq, count_init = 0, log = sys.stderr):
+def print_hex(seq, count_init = 0, log = sys.stderr, newline = '\n'):
     """Print byte stream as hex."""
     count = count_init
     for b in seq:
         if 0 == (count % 16):
-            log.write("\n%08X " % count)
+            log.write("%s%08X " % (newline, count))
         log.write("%02X " % b)
         log.flush()
         count += 1
+    return count
+
 
 # FILTERS
 def filter_diff(seq):

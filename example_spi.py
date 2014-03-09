@@ -22,5 +22,6 @@ def saleae_spi():
 
     
 print_hex(saleae_spi())
+# print_hex(saleae_spi(),newline='\r')
 
 
