@@ -282,3 +282,13 @@ The gui should really just be a multilog.
 
 2. Display results in pylag
 
+
+
+Entry: Sharing incoming buffer
+Date: Sun Mar  9 12:00:00 CET 2014
+
+One last thing to do: don't copy the memory buffer coming in from the
+Saleae.  How to make a vector wrapper that uses the underlying memory?
+
+
+
