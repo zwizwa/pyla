@@ -3,7 +3,8 @@ from stream import *
 
 
 ## Currently samplerate can only be set once at startup.
-# pyla.saleae.start(4000000)
+# pyla.saleae.start(24000000)
+pyla.saleae.start(4000000)
 
 def saleae_uart():
     return saleae_with(

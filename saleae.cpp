@@ -36,7 +36,7 @@ void __stdcall OnDisconnect( U64 device_id, void* user_data ) {
 }
 void __stdcall OnConnect( U64 device_id, GenericInterface* device_interface, void* user_data ) {
   if( dynamic_cast<LogicInterface*>( device_interface ) != NULL ) {
-    LOG("salea.cpp:Connect %08X\n", device_id);
+    LOG("salea.cpp:%08X Connect\n", device_id);
     LogicInterface *i = (LogicInterface*)device_interface;
     saleae *dev = saleae::register_device(device_id, i);
     i->RegisterOnReadData( &OnReadData );
@@ -44,7 +44,7 @@ void __stdcall OnConnect( U64 device_id, GenericInterface* device_interface, voi
     i->RegisterOnError( &OnError );
     double sr = dev->get_samplerate();
     i->SetSampleRateHz( sr );
-    LOG("salea.cpp:Start %08X at %.3f MHz\n", device_id, sr/1000000);
+    LOG("salea.cpp:%08X Start at %.3f MHz\n", device_id, sr/1000000);
     i->ReadStart();
   }
 }
@@ -118,7 +118,7 @@ void saleae::set_samplerate_hint(double sr) {
   _samplerate = sr;
 }
 void saleae::connect_sink(shared_ptr<sink> s) {
-  LOG("salea.cpp:%08X->connect_sink()\n", _device_id);
+  LOG("salea.cpp:%08X connect_sink\n", _device_id);
   _sink_mutex.lock();
   _sink = s;
   _sink_mutex.unlock();
