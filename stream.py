@@ -33,14 +33,13 @@ def filter_diff(seq):
 
 # SOURCES
 
-# This function is a good example of the full architecture:
-# - sampling devices connect to sinks (sampler ISR/callback calls 'write')
+# This function is an example of the full architecture:
+# - sampling devices push data to sinks (sampler ISR/callback calls 'write')
 # - operations process input to output, but don't perform memory management
-# - programs combine operations, using a chunk stack to provide chunk memory management
-# - programs exposed as sinks can be attached to sampling devices.  outputs are pushed to other (low-rate) sinks.
-# - buffers adapt sink interfaces ('write' = data push) to source interfaces ('read' = data pull)
-# - python generators are polled sources
-
+# - programs combine operations, using a chunk stack to provide shared_ptr-based chunk memory management
+# - programs exposed as sinks can be attached to sampling devices.  processing results are pushed to other (low-rate) output sinks.
+# - buffers adapt sink interfaces ('write' = data push) to source interfaces ('read' = data pull). these are used on the low-rate side.
+# - python generators poll the low-rate buffers
 
 def saleae_with(op, record=None, buftype=['memory']):
     """Combine saleae, analyzer+config, buffer to make a python sequence."""
