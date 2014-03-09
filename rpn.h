@@ -34,9 +34,9 @@ class chunk_stack {
   int size() { return _operands.size(); }
 
   chunk top_copy() {
-    // FIXME: Something is wrong with swig wrapping of shared pointers..
-    chunk c = *top();
-    return c;
+    /* FIXME: Something is wrong with swig wrapping of shared chunk
+       pointers so provide copying. */
+    return *top();
   }
 
   /* The void (*)() methods can be used in chunk_program. */
@@ -50,6 +50,12 @@ class chunk_stack {
   }
   void dup() {
     push(top());
+  }
+  void swap() {
+    boost::shared_ptr<chunk> a = pop();
+    boost::shared_ptr<chunk> b = pop();
+    push(a);
+    push(b);
   }
   void save() {
     _save.push_front(pop());
@@ -107,6 +113,7 @@ class stack_program : public stack_op {
     _program.push_back(new stack_compute(op));
   }
   void dup()  { _op(&chunk_stack::dup);  }
+  void swap() { _op(&chunk_stack::swap); }
   void drop() { _op(&chunk_stack::drop); }
   void load() { _op(&chunk_stack::load); }
   void save() { _op(&chunk_stack::save); }
