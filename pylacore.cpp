@@ -3,8 +3,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <sys/mman.h> // windows?
+#if defined(_WIN32)
+// ???
+#else
+#include <sys/mman.h>
 #include <fcntl.h>
+#endif
 
 
 
@@ -63,6 +67,18 @@ boost::shared_ptr<chunk> memory::read() {
 memory::~memory() {
 }
 
+
+#if defined(_WIN32)
+// ???
+memmap::memmap(const char *filename, uint64_t size) {}
+memmap::~memmap() {}
+void memmap::write(boost::shared_ptr<chunk> input) {}
+void memmap::clear()  {}
+boost::shared_ptr<chunk> memmap::read(){
+	boost::shared_ptr<chunk> p = boost::shared_ptr<chunk>(new chunk());
+	return p;
+}
+#else
 // http://mentablog.soliveirajr.com/2012/12/asynchronous-logging-versus-memory-mapped-files/
 
 // http://stackoverflow.com/questions/1201261/what-is-the-fastest-method-for-high-performance-sequential-file-i-o-in-c
@@ -125,6 +141,6 @@ boost::shared_ptr<chunk> memmap::read() {
 void memmap::clear() {
   bzero(_buf, _size);
 }
-
+#endif
 
 
