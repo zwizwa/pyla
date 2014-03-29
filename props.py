@@ -18,21 +18,20 @@ def a_list(el_type, min=0, max=10):
         len = random.randint(min, max)
         yield [el_type.__next__() for i in range(len)]
 
-def a_tuple(el_types):
+def a_tuple(*el_types):
     while True:
         yield tuple([t.__next__() for t in el_types])
 
-def mapgen(n, f, *arg_types):
+def forall(n, f, *arg_types):
     i = 0
-    for args in a_tuple(arg_types):
+    for args in a_tuple(*arg_types):
         f(*args)
         i += 1
         if i == n:
             return
 
-
 if __name__ == '__main__':
     def prnt(*args):
         print(args)
-    mapgen(10, prnt, a_byte, a_byte)
-    mapgen(10, prnt, a_list(a_byte))
+    forall(10, prnt, a_byte, a_byte)
+    forall(10, prnt, a_list(a_byte))

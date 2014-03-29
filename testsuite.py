@@ -4,48 +4,52 @@ from tools import *
 import time
 import sys
 from stream import *
-
-
+import random
+from props import *
 
 def check(val, exp, msg):
     if val != exp:
         raise NameError(msg + ": %s != %s" % (val,exp))
 
 
-# UART
-def test_uart():
-    uart = pyla.uart()
-    br = 9600
-    ov = 16
-    sr = br * ov
-    uart.set_baudrate(br)
-    uart.set_samplerate(sr)
-    uart.set_channel(0)
 
-    def test_byte(inbytes):
-        idle = [1,1,1]
+class uart_test:
+    def __init__(self, br, ov):
+        self.br = br
+        self.ov = ov
+        self.uart = pyla.uart()
+        self.uart.set_baudrate(self.br)
+        self.uart.set_samplerate(self.sr())
+        self.uart.set_channel(0)
+
+    def sr(self):
+        return self.br * self.ov
+    
+    def prop_gen_parse(self, inbytes, n_idle=3):
+        idle = [1 for i in range(n_idle)]
         bits = idle
         for inbyte in inbytes:
             bits = bits + uart_frame_nopar(inbyte)
         bits = bits + idle
         # print(bits)
-        ov_bytes = bytes(oversample(bits, ov))
-        output = uart.process(ov_bytes)
+        ov_bytes = bytes(oversample(bits, self.ov))
+        output = self.uart.process(ov_bytes)
         check(list(output), inbytes, "uart in-out")
-        
-    # FAILS?
-    for i in range(256):
-        test_byte([i])
-
-    for i in range(256):
-        test_byte([i,i,i])
-
     
 
-    # test_byte(0x55)
-    # test_byte(0x0F)
+def test_uart():
 
-    # print(bytes(output))
+    def prop_br_ov(br, ov):
+        ut = uart_test(br, ov)
+
+        # Manual
+        for i in range(256):
+            ut.prop_gen_parse([i])
+
+        # Generated tests.
+        forall(100, ut.prop_gen_parse, a_list(a_byte), a_range(0,13))
+
+    forall(10, prop_br_ov, a_range(9600,115200), a_range(1,16))
 
     print("test_uart done")
 
@@ -141,11 +145,18 @@ def test_multibuf():
     
     print("test_multibuf done")
 
+
+
+
+
+
+
 test_uart()
 test_stack()
 test_multibuf()
 test_memmap()
 # test_saleae()
+
 
 
 print("IGNORE error below:")
