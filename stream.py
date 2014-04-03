@@ -9,7 +9,10 @@ import sys
 def print_ascii(seq, log = sys.stderr):
     """Print byte stream as ascii."""
     for b in seq:
-        log.write(chr(b))
+        if b>=32 and b<127:
+            log.write(chr(b))
+        else:
+            log.write("\\x%02X" % b)
         log.flush()
 
 def print_hex(seq, count_init = 0, log = sys.stderr, newline = '\n'):

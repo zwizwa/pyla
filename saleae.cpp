@@ -36,7 +36,7 @@ void __stdcall OnDisconnect( U64 device_id, void* user_data ) {
 }
 void __stdcall OnConnect( U64 device_id, GenericInterface* device_interface, void* user_data ) {
   if( dynamic_cast<LogicInterface*>( device_interface ) != NULL ) {
-    LOG("salea.cpp:%08X Connect\n", device_id);
+    LOG("salea.cpp:%08llX Connect\n", device_id);
     LogicInterface *i = (LogicInterface*)device_interface;
     saleae *dev = saleae::register_device(device_id, i);
     i->RegisterOnReadData( &OnReadData );
@@ -44,7 +44,7 @@ void __stdcall OnConnect( U64 device_id, GenericInterface* device_interface, voi
     i->RegisterOnError( &OnError );
     double sr = dev->get_samplerate();
     i->SetSampleRateHz( sr );
-    LOG("salea.cpp:%08X Start at %.3f MHz\n", device_id, sr/1000000);
+    LOG("salea.cpp:%08llX Start at %.3f MHz\n", device_id, sr/1000000.0);
     i->ReadStart();
   }
 }
@@ -60,7 +60,8 @@ saleae::saleae(U64 device_id, GenericInterface* device_interface) :
   _device_id(device_id),
   _device_interface(device_interface),
   _samplerate(_default_samplerate),
-  _sink(shared_ptr<sink>(new hole())) { }
+  _sink(shared_ptr<sink>(new hole())) {
+}
 
 saleae::~saleae() {
   // Tear down the callback before deleting any instances.
@@ -69,6 +70,7 @@ saleae::~saleae() {
 
 void saleae::start(double samplerate) {
   if (!_device_map_mutex) {
+    LOG("salea.cpp:default at %.3f MHz\n", samplerate/1000000.0);
     _default_samplerate = samplerate;
     _device_map_mutex = new boost::mutex();
     DevicesManagerInterface::RegisterOnConnect( &OnConnect );
@@ -79,6 +81,7 @@ void saleae::start(double samplerate) {
 }
 
 std::vector<saleae*> saleae::devices() {
+  /* If not yet started manually, start it with the default rate. */
   saleae::start(PYLA_DEFAULT_SAMPLERATE);
   _device_map_mutex->lock();
   std::vector<saleae*> _map_copy = _device_map;
@@ -118,7 +121,7 @@ void saleae::set_samplerate_hint(double sr) {
   _samplerate = sr;
 }
 void saleae::connect_sink(shared_ptr<sink> s) {
-  LOG("salea.cpp:%08X connect_sink\n", _device_id);
+  LOG("salea.cpp:%08llX connect_sink\n", _device_id);
   _sink_mutex.lock();
   _sink = s;
   _sink_mutex.unlock();
