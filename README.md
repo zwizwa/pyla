@@ -48,9 +48,7 @@ Planned:
 
 Hacking:
 
-While the code uses Swig, it seems rather hard to automate all the
-wrapping necessary.  To add a processing class, take the measurement
-module as an example.
+To add a processing class, take the measurement module as an example.
 
 - Add a set of header / code files to create a new module.  ( It might
   be more appropriate to add to an existing header / code file. )
@@ -82,6 +80,21 @@ Your new object is now available in python:
     import pyla
     f = pyla.frequency()
 
+
+A note about `shared_ptr` wrapping:
+
+The choice was made to keep memory management separate from the
+definition of the processing classes. 
+
+Memory management in the form of `shared_ptr` is implemented
+explicitly in `shared.h`.  For each class `CLS` we manually create a
+`static inline` function `shared_CLS` that constructs a
+`shared_ptr<CLS>` oject.  Code in `pyla.py` performs additional Python
+wrapping automatically, making the extended object available as
+`pyla.CLS`.
+
+It seems that Swig does not handle `shared_ptr` wrapping
+automatically, hence some extra annotation in `pylacore.i` is needed.
 
 
 
