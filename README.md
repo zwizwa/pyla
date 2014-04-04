@@ -4,7 +4,8 @@ Streaming data analyzer for Saleae logic[1] based on Saleae SDK[2][3].
 Currently supports the 8-port version.
 Support for other aquisition modules is possible. (Send me some hardware!)
 
-Basic ideas:
+Basic ideas
+-----------
 
 - Python's generators are a nice abstraction for working with data streams.
 
@@ -24,7 +25,8 @@ modular with minimal dependencies.  An idea is to be able to reuse the
 C++ frontend code on a bare-bones microcontroller.
 
 
-Currently supports:
+Currently supports
+------------------
 
 - C++: Synchronous serial, Asynchronous serial, De-duplication
 
@@ -40,13 +42,15 @@ Currently supports:
 
 
 
-Planned:
+Planned
+-------
 
 - Cross-platform Qt GUI tools in Python PySide
 
 
 
-Hacking:
+Hacking
+-------
 
 To add a processing class, take the measurement module as an example.
 
@@ -81,14 +85,15 @@ Your new object is now available in python:
     f = pyla.frequency()
 
 
-A note about `shared_ptr` wrapping:
+Memory management
+-----------------
 
 The choice was made to keep memory management separate from the
 definition of the processing classes. 
 
 Memory management in the form of `shared_ptr` is implemented
 explicitly in `shared.h`.  For each class `CLS` we manually create a
-`static inline` function `shared_CLS` that constructs a
+`static inline` factory function `shared_CLS` that constructs a
 `shared_ptr<CLS>` oject.  Code in `pyla.py` performs additional Python
 wrapping automatically, making the extended object available as
 `pyla.CLS`.
@@ -99,7 +104,8 @@ automatically, hence some extra annotation in `pylacore.i` is needed.
 
 
 
-Links:
+Links
+-----
 
 [1] http://www.saleae.com/logic
 
