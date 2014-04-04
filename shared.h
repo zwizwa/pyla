@@ -7,6 +7,7 @@
 #include "pylacore.h"
 #include "uart.h"
 #include "syncser.h"
+#include "measure.h"
 #include "rpn.h"
 
 
@@ -24,6 +25,7 @@ wrap(dedup)
 wrap(hole)
 wrap(stack_program)
 wrap(chunk_stack)
+wrap(frequency)
 
 // multi-arg constructors are written out
 static inline boost::shared_ptr<stack_op_sink>

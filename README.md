@@ -46,6 +46,46 @@ Planned:
 
 
 
+Hacking:
+
+While the code uses Swig, it seems rather hard to automate all the
+wrapping necessary.  To add a processing class, take the measurement
+module as an example.
+
+- Add a set of header / code files to create a new module.  ( It might
+  be more appropriate to add to an existing header / code file. )
+
+      touch measure.h measure.cpp
+      git add measure.h measure.cpp
+
+- Add the new C++ file `measure.cpp` file to `CMakeLists.txt` in the
+  variable `SWIG_ADD_MODULE`.
+
+- Add the new header file `pylacore.i` as `#include "measure.h"` at
+  the top and `%include "measure.h"` at the bottom.
+
+- Define a new class in `measure.h` as
+
+      #include "pylacore.h" // for frontend class
+      class frequency : public frontend
+
+- Add `%shared_ptr(frequency)` to `pylacore.i`, indicating to SWIG it
+  needs to look inside the `shared_ptr<frequency>` object to expose
+  `frequency` methods.
+
+- If the constructor of the new object has no arguments, add a line
+  `wrap(frequency)` in `shared.h`.  Otherwise write a manual wrapper
+  following the examples in at the bottom of the file.  Also add
+  `#include "measure.h"` to `shared.h`
+
+
+Your new object is now available in python:
+
+    import pyla
+    f = pyla.frequency()
+
+
+
 
 
 Links:
