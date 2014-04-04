@@ -64,11 +64,8 @@ module as an example.
 - Add the new header file `pylacore.i` as `#include "measure.h"` at
   the top and `%include "measure.h"` at the bottom.
 
-- Define a new class in `measure.h` as
-
-      class frequency : public frontend
-
-  The `frontend` class is in `pylacore.h`.
+- Define a new class in `measure.h` as `class frequency : public
+  frontend`.  The `frontend` class is in `pylacore.h`.
 
 - Add `%shared_ptr(frequency)` to `pylacore.i`, indicating to SWIG it
   needs to look inside the `shared_ptr<frequency>` object to expose
