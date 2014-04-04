@@ -66,17 +66,18 @@ module as an example.
 
 - Define a new class in `measure.h` as
 
-      #include "pylacore.h" // for frontend class
       class frequency : public frontend
+
+  The `frontend` class is in `pylacore.h`.
 
 - Add `%shared_ptr(frequency)` to `pylacore.i`, indicating to SWIG it
   needs to look inside the `shared_ptr<frequency>` object to expose
   `frequency` methods.
 
-- If the constructor of the new object has no arguments, add a line
-  `wrap(frequency)` in `shared.h`.  Otherwise write a manual wrapper
-  following the examples in at the bottom of the file.  Also add
-  `#include "measure.h"` to `shared.h`
+- If the constructor of the new object has no arguments (which is
+  preferred), add a line `wrap(frequency)` in `shared.h`.  Otherwise
+  write a manual wrapper following the examples in at the bottom of
+  the file.  Also add `#include "measure.h"` to `shared.h`
 
 
 Your new object is now available in python:
