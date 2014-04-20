@@ -292,3 +292,27 @@ Saleae.  How to make a vector wrapper that uses the underlying memory?
 
 
 
+Entry: Rust?
+Date: Thu Mar 20 13:17:46 CET 2014
+
+Is it possible to express the state machine <-> task transformation as
+a function composition in Rust.  In Haskell?  Likely this
+transformation is a 1-way projection, not a projection followed by
+injection.
+
+
+
+Entry: Fast update gui
+Date: Sun Apr 20 11:58:24 EDT 2014
+
+Roadmap:
+- Get a OpenGL view to work in pyside
+- Call C/C++ code to draw OpenGL primitives
+- Implement circular buffer recording + mipmap
+- Enable triggers on mipmap
+- Implement autoscaling
+
+
+Elements:
+- Circular buffer: memory, optionally backed with a file (mmap).
+
