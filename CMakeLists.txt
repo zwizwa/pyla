@@ -10,6 +10,7 @@ FIND_PACKAGE(SWIG REQUIRED)
 INCLUDE(${SWIG_USE_FILE})
 FIND_PACKAGE(PythonLibs)
 INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
+INCLUDE_DIRECTORIES(${BOOST_INCLUDE_PATH})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 SET(CMAKE_SWIG_FLAGS "")
 SET_SOURCE_FILES_PROPERTIES(pylacore.i PROPERTIES CPLUSPLUS ON)
@@ -18,6 +19,7 @@ SWIG_ADD_MODULE(pylacore python pylacore.i
   uart.cpp
   saleae.cpp
   syncser.cpp
+  measure.cpp
 )
 
 
@@ -30,12 +32,16 @@ ExternalProject_Add(SaleaeDeviceSdk
   INSTALL_COMMAND ""
 )
 
-INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/SaleaeDeviceSdk-prefix/src/SaleaeDeviceSdk/include)
+INCLUDE_DIRECTORIES(
+	${Boost_INCLUDE_DIRS}
+	${CMAKE_BINARY_DIR}/SaleaeDeviceSdk-prefix/src/SaleaeDeviceSdk/include
+)
+
 
 SET(SALEADEVICESDK_LIB ${CMAKE_BINARY_DIR}/SaleaeDeviceSdk-prefix/src/SaleaeDeviceSdk/lib/)
 
 if(WIN32)
-  SET(SALEADEVICE_LIBRARY ${SALEADEVICESDK_LIB}/libSaleaeDevice.dylib)
+  SET(SALEADEVICE_LIBRARY ${SALEADEVICESDK_LIB}/SaleaeDevice.lib)
 else(WIN32)
   if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     SET(SALEADEVICE_LIBRARY ${SALEADEVICESDK_LIB}/libSaleaeDevice64.so)
@@ -45,11 +51,15 @@ else(WIN32)
 endif(WIN32)
 
 
-# CMAKE_CXX_LIBRARY_ARCHITECTURE=x86_64-linux-gnu
-SET(SALEADEVICE_LIBRARY ${SALEADEVICESDK_LIB}/libSaleaeDevice64.so) #FIXME
 
 SWIG_LINK_LIBRARIES(pylacore
   ${PYTHON_LIBRARIES}
   ${Boost_SYSTEM_LIBRARY}
   ${SALEADEVICE_LIBRARY})
+
+# DEBUG: print out all variables available to CMAKE
+#get_cmake_property(_variableNames VARIABLES)
+#foreach (_variableName ${_variableNames})
+#    message(STATUS "${_variableName}=${${_variableName}}")
+#endforeach()
 

@@ -29,3 +29,5 @@ def uart_frame_nopar(byte):
     l = list(number_bits(byte, 8))
     return [0] + l + [1]
 
+
+

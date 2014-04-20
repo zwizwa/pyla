@@ -1,12 +1,14 @@
 from pyla import *
 from stream import *
 
+## Use SPI as debugging output.  Useful for projects that already have
+## the UART(s) used for something else.  SPI on the master side is
+## very easy to bit-bang.
 
-## Currently samplerate can only be set once at startup.
+
+# pyla.saleae.start(16000000)
+
 pyla.saleae.start(8000000)
-# pyla.saleae.start(4000000)
-# pyla.saleae.start(24000000)
-# pyla.saleae.start(12000000)
 
 def saleae_spi():
     return saleae_with(
@@ -21,8 +23,6 @@ def saleae_spi():
         record = "/tmp/spi.bin")
 
 
-    
-print_hex(saleae_spi())
-# print_hex(saleae_spi(),newline='\r')
+print_ascii(saleae_spi())
 
 
