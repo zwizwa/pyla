@@ -292,3 +292,7 @@ Saleae.  How to make a vector wrapper that uses the underlying memory?
 
 
 
+Entry: Multiscale / multichannel roll mode
+Date: Mon Apr 28 22:03:54 EDT 2014
+
+!
