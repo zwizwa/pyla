@@ -316,3 +316,11 @@ Roadmap:
 Elements:
 - Circular buffer: memory, optionally backed with a file (mmap).
 
+
+
+Entry: Sigrok
+Date: Sun Apr 20 12:58:48 EDT 2014
+
+How to share code?  First, use it as a streaming backend + enable open
+FX2 firmware.
+
