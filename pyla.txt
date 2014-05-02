@@ -324,3 +324,9 @@ Date: Sun Apr 20 12:58:48 EDT 2014
 How to share code?  First, use it as a streaming backend + enable open
 FX2 firmware.
 
+
+Entry: Multiscale / multichannel roll mode
+Date: Mon Apr 28 22:03:54 EDT 2014
+
+!
+
