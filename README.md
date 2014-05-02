@@ -1,10 +1,12 @@
 Python Logic Analyzer
+=====================
 
 Streaming data analyzer for Saleae logic[1] based on Saleae SDK[2][3].
 Currently supports the 8-port version.
 Support for other aquisition modules is possible. (Send me some hardware!)
 
-Basic ideas:
+Basic ideas
+-----------
 
 - Python's generators are a nice abstraction for working with data streams.
 
@@ -24,7 +26,8 @@ modular with minimal dependencies.  An idea is to be able to reuse the
 C++ frontend code on a bare-bones microcontroller.
 
 
-Currently supports:
+Currently supports
+------------------
 
 - C++: Synchronous serial, Asynchronous serial, De-duplication
 
@@ -40,15 +43,70 @@ Currently supports:
 
 
 
-Planned:
+Planned
+-------
 
 - Cross-platform Qt GUI tools in Python PySide
 
 
 
+Hacking
+-------
+
+To add a processing class, take the measurement module as an example.
+
+- Add a set of header / code files to create a new module.  ( It might
+  be more appropriate to add to an existing header / code file. )
+
+      touch measure.h measure.cpp
+      git add measure.h measure.cpp
+
+- Add the new C++ file `measure.cpp` file to `CMakeLists.txt` in the
+  variable `SWIG_ADD_MODULE`.
+
+- Add the new header file `pylacore.i` as `#include "measure.h"` at
+  the top and `%include "measure.h"` at the bottom.
+
+- Define a new class in `measure.h` as `class frequency : public
+  frontend`.  The `frontend` class is in `pylacore.h`.
+
+- Add `%shared_ptr(frequency)` to `pylacore.i`, indicating to SWIG it
+  needs to look inside the `shared_ptr<frequency>` object to expose
+  `frequency` methods.
+
+- If the constructor of the new object has no arguments (which is
+  preferred), add a line `wrap(frequency)` in `shared.h`.  Otherwise
+  write a manual wrapper following the examples in at the bottom of
+  the file.  Also add `#include "measure.h"` to `shared.h`
 
 
-Links:
+Your new object is now available in python:
+
+    import pyla
+    f = pyla.frequency()
+
+
+Memory management
+-----------------
+
+The choice was made to keep memory management separate from the
+definition of the processing classes. 
+
+Memory management in the form of `shared_ptr` is implemented
+explicitly in `shared.h`.  For each class `CLS` we manually create a
+`static inline` factory function `shared_CLS` that constructs a
+`shared_ptr<CLS>` oject.  Code in `pyla.py` performs additional Python
+wrapping automatically, making the extended object available as
+`pyla.CLS`.
+
+It seems that Swig does not handle `shared_ptr` wrapping
+automatically, hence some extra annotation in `pylacore.i` is needed.
+
+
+
+
+Links
+-----
 
 [1] http://www.saleae.com/logic
 

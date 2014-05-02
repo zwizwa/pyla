@@ -23,10 +23,8 @@ def a_tuple(*el_types):
         yield tuple([t.__next__() for t in el_types])
 
 def forall(n, f, *arg_types):
-    i = 0
-    for args in a_tuple(*arg_types):
+    for i,args in enumerate(a_tuple(*arg_types)):
         f(*args)
-        i += 1
         if i == n:
             return
 

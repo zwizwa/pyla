@@ -9,6 +9,7 @@
 #include "saleae.h"
 #include "rpn.h"
 #include "shared.h"
+#include "measure.h"
 %}
 
 
@@ -30,6 +31,7 @@
 %shared_ptr(stack_program)
 %shared_ptr(stack_op_sink)
 %shared_ptr(chunk_stack)
+%shared_ptr(frequency)
 
 %include "pylacore.h"
 %include "uart.h"
@@ -37,6 +39,7 @@
 %include "rpn.h"
 %include "shared.h"
 %include "saleae.h"
+%include "measure.h"
 
 
 %template(chunk) std::vector<unsigned char>;
