@@ -11,15 +11,17 @@ def print_uart_and_spi():
     # Instantiate and configure analyzers
     _spi_i = syncser().config({
         'clock_channel'  : 0,
-        'data_channel'   : 1,
-        'clock_edge'     : 1,  # sampling edge: 0->1
-        'clock_polarity' : 0,  # clock idle polarity
+        'data_channel'   : 2,
+        'clock_edge'     : 0,
+        'clock_polarity' : 0,
+        'frame_timeout'  : 125, # 5uS
     })
     _spi_o = syncser().config({
         'clock_channel'  : 0,
-        'data_channel'   : 2,
-        'clock_edge'     : 1,  # sampling edge: 0->1
-        'clock_polarity' : 0,  # clock idle polarity
+        'data_channel'   : 1,
+        'clock_edge'     : 0,
+        'clock_polarity' : 0,
+        'frame_timeout'  : 125, # 5uS
     })
     
     # Create dataflow program.  See implementation of `parallel' in
@@ -35,10 +37,14 @@ def print_uart_and_spi():
     # Print both streams to console.
     while True:
         [buf_i, buf_o] = mb.read_multi()
-        if buf_i:
-            print_hex(buf_i, newline="\nI:\n")
-        if buf_o:
-            print_hex(buf_o, newline="\nO:\n")
+#        if buf_i:
+#            print_hex(buf_i, newline="\nI:\n")
+#        if buf_o:
+#            print_hex(buf_o, newline="\nO:\n")
+        if 1 and buf_i:
+            print_hex(buf_i)
+        if 0 and buf_o:
+            print_hex(buf_o)
         time.sleep(0.1)
 
 

@@ -27,6 +27,30 @@ def print_hex(seq, count_init = 0, log = sys.stderr, newline = '\n'):
     return count
 
 
+# One hex command sequence per line.
+# Print F8 clock tick with a counter to reduce verbosity.
+def print_midi(seq):
+    msg = []
+    nb_F8 = 0
+    while True:
+        b = next(seq)
+        if b == 0xF8:
+            nb_F8 = nb_F8 + 1
+            sys.stdout.write("\r%02X (%d) " % (b,nb_F8))
+        else:
+            if b & 0x80:
+                if nb_F8:
+                    print()
+                    nb_F8 = 0
+                for m in msg:
+                    sys.stdout.write("%02X " % m)
+                msg = []
+                print()
+            msg.append(b)
+        sys.stdout.flush()
+                    
+
+
 # FILTERS
 def filter_diff(seq):
     """Pass only changing bytes."""

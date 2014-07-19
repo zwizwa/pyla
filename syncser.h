@@ -18,6 +18,7 @@ class syncser : public frontend {
   void set_data_channel(int c)   { _data_channel = c; }
   void set_frame_channel(int c)  { _frame_channel = c; }
   void set_frame_active(int a)   { _frame_active = a; }
+  void set_frame_timeout(int a)  { _frame_timeout = a; }
 
  private:
   /* config */
@@ -27,12 +28,14 @@ class syncser : public frontend {
   int _clock_edge;
   int _clock_polarity;
   int _frame_active;
+  int _frame_timeout;
 
   /* state */
   unsigned int _shift_count;
   unsigned int _shift_reg;
   int _clock_state;
   int _frame_state;
+  int _frame_timeout_state;
 };
 
 
