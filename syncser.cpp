@@ -7,6 +7,7 @@ syncser::syncser() {
   _clock_edge     = 1;  // postive edge triggering
   _clock_polarity = 0;
   _frame_active   = 0;
+  _frame_timeout  = -1; // disabled
   reset();
 };
 
@@ -37,6 +38,20 @@ void syncser::process(chunk& output, chunk& input) {
       }
     }
 
+    /* Frame timeout. */
+    if (_frame_timeout > 0) {
+      if (_frame_timeout_state == 0) {
+        // reset
+        _shift_reg = 0;
+        _shift_count = 0;
+        _frame_timeout_state = _frame_timeout;
+      }
+      else {
+        _frame_timeout_state--;
+      }
+    }
+
+
     /* Shift in data on sampling clock edge. */
     if ((_frame_channel < 0) | // ignore framing or
         (frame_bit == _frame_active)) { // frame active
@@ -50,6 +65,8 @@ void syncser::process(chunk& output, chunk& input) {
             // reset shift register
             _shift_reg = 0;
             _shift_count = 0;
+            // reset frame timeout
+            _frame_timeout_state = _frame_timeout;
           }
         }
       }
