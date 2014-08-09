@@ -7,7 +7,7 @@
 #include "uart.h"
 #include "syncser.h"
 #include "saleae.h"
-#include "sigrok.h"
+//#include "sigrok.h"
 #include "rpn.h"
 #include "shared.h"
 #include "measure.h"
@@ -40,7 +40,7 @@
 %include "rpn.h"
 %include "shared.h"
 %include "saleae.h"
-%include "sigrok.h"
+//%include "sigrok.h"
 %include "measure.h"
 
 
