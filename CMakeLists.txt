@@ -7,7 +7,7 @@ ELSE(WIN32)
   PKG_CHECK_MODULES(Sigrok REQUIRED libsigrok)
 ENDIF(WIN32)
 
-find_package(Boost COMPONENTS system REQUIRED)
+find_package(Boost COMPONENTS system thread REQUIRED)
 
 
 # http://www.swig.org/Doc1.3/Introduction.html#Introduction_build_system
@@ -63,12 +63,13 @@ endif(WIN32)
 SWIG_LINK_LIBRARIES(pylacore
   ${PYTHON_LIBRARIES}
   ${Boost_SYSTEM_LIBRARY}
+  ${Boost_THREAD_LIBRARY}
   ${Sigrok_LDFLAGS}
   ${SALEADEVICE_LIBRARY})
 
-# DEBUG: print out all variables available to CMAKE
-get_cmake_property(_variableNames VARIABLES)
-foreach (_variableName ${_variableNames})
-    message(STATUS "${_variableName}=${${_variableName}}")
-endforeach()
+## DEBUG: print out all variables available to CMAKE
+#get_cmake_property(_variableNames VARIABLES)
+#foreach (_variableName ${_variableNames})
+#    message(STATUS "${_variableName}=${${_variableName}}")
+#endforeach()
 

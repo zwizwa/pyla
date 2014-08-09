@@ -3,6 +3,7 @@
 
 #include "shared.h"
 #include <vector>
+#include <boost/thread.hpp>
 
 
 class sigrok : public cosink, public sampler {
@@ -17,12 +18,15 @@ class sigrok : public cosink, public sampler {
   void set_samplerate_hint(double sr);
 
   void start();
+  void thread_main();
 
   void datafeed_in(const struct sr_dev_inst *sdi,
                    const struct sr_datafeed_packet *packet);
 
  private:
   boost::shared_ptr<sink> _sink;
+  boost::mutex _sink_mutex;
+  boost::thread *_thread;
   double _samplerate;
   // FIXME: shared context?
   struct sr_context *_sr;

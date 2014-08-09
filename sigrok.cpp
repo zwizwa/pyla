@@ -33,10 +33,19 @@ void sigrok::datafeed_in(const struct sr_dev_inst *sdi,
     {
       const struct sr_datafeed_logic *logic = (typeof(logic))packet->payload;
       const uint8_t *data = (typeof(data))logic->data;
-      // cerr << logic->length;  // number of bytes
-      // cerr << logic->unitsize;// size in bytes of a single unit
+      // FIXME: code only supports logic->unitsize == 1
+      // cerr << logic->length;   // number of bytes
+      // cerr << logic->unitsize; // size in bytes of a single unit
       // cerr << data[0];
       cerr << ".";
+      _sink_mutex.lock();
+      if (_sink) {
+        boost::shared_ptr<chunk> c = 
+          boost::shared_ptr<chunk>(new chunk(logic->length));
+        c->assign(data, data + logic->length);
+        _sink->write(c);
+      }
+      _sink_mutex.unlock();
     }
     break;
   default:
@@ -48,6 +57,7 @@ void sigrok::datafeed_in(const struct sr_dev_inst *sdi,
 sigrok::sigrok() :
   _session(NULL),
   _inst(NULL),
+  _thread(NULL),
   _samplerate(PYLA_DEFAULT_SAMPLERATE),
   _sink(shared_ptr<sink>(new hole())) {
   int rv;
@@ -80,7 +90,7 @@ sigrok::sigrok() :
   }
 }
 
-void sigrok::start() {
+void sigrok::thread_main() {
   if (SR_OK != sr_config_set
       (_inst, NULL,
        SR_CONF_SAMPLERATE,
@@ -105,10 +115,20 @@ void sigrok::start() {
   }
   sr_session_run(_session);
 }
+static void wrap_thread_main(sigrok *s) {
+  s->thread_main();
+}
+
+void sigrok::start() {
+  _thread = new boost::thread(wrap_thread_main, this);
+}
+
+
+
 
 sigrok::~sigrok() {
   // Tear down the callback before deleting any instances.
-  LOG("sigrok.cpp:~sigrok()\n");
+  LOG("sigrok.cpp: ~sigrok()\n");
   
 }
 
@@ -120,10 +140,10 @@ void sigrok::set_samplerate_hint(double sr) {
   _samplerate = sr;
 }
 void sigrok::connect_sink(shared_ptr<sink> s) {
-  LOG("sigrok.cpp:connect_sink\n");
-  // _sink_mutex.lock();  // FIXME!
+  LOG("sigrok.cpp: connect_sink\n");
+  _sink_mutex.lock();
   _sink = s;
-  // _sink_mutex.unlock();
+  _sink_mutex.unlock();
 }
 
 

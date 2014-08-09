@@ -70,14 +70,15 @@ def filter_diff(seq):
 # - buffers adapt sink interfaces ('write' = data push) to source interfaces ('read' = data pull). these are used on the low-rate side.
 # - python generators poll the low-rate buffers
 
-def saleae_with(op, record=None, buftype=['memory']):
-    """Combine saleae, analyzer+config, buffer to make a python sequence."""
 
-    # Get first available sampler device.
-    saleae = pyla.devices()[0]
+def device_with(op, record=None, buftype=['memory'], device=None):
+    """Combine device, analyzer+config, buffer to make a python sequence."""
+
+    if device == None:
+        device = pyla.devices()[0]
 
     # Pass the samplerate to the operation.
-    op.set_samplerate(saleae.get_samplerate())
+    op.set_samplerate(device.get_samplerate())
 
     # Create the buffer that will connect the sink and source
     # interfaces, resp. data push by analyzer and data pull by python
@@ -98,19 +99,23 @@ def saleae_with(op, record=None, buftype=['memory']):
     snk.connect_output(0, buf)
 
     # Pass the sink interface to the sampler.
-    saleae.connect_sink(snk)
+    device.connect_sink(snk)
 
     # The other side of the buffer then presents a source interface
     # which is polled to create a python byte generator.
     return buf.bytes()
 
-def saleae_raw():
+def device_raw(device=None):
     """Raw saleae byte sequence."""
-    saleae = pyla.devices()[0]
+    if device == None:
+        device = pyla.devices()[0]
     buf = pyla.memory()
-    saleae.connect_sink(buf)
+    device.connect_sink(buf)
     return buf.bytes()
 
+# Backward compat
+saleae_with = device_with
+saleae_raw = device_raw
 
 
 
