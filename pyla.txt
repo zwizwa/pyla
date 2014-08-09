@@ -378,6 +378,11 @@ Roadmap:
 
 Next: how to get at the datafeed?
 
+OK, got it.
+Trouble: sigrok git is incompatible with 0.3.0
+
+I wonder if maybe it is simpler to forget about sigrok and just go for
+libusb directly?
 
 
 [1] http://sigrok.org
