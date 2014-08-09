@@ -18,6 +18,9 @@ class sigrok : public cosink, public sampler {
 
   void start();
 
+  void datafeed_in(const struct sr_dev_inst *sdi,
+                   const struct sr_datafeed_packet *packet);
+
  private:
   boost::shared_ptr<sink> _sink;
   double _samplerate;

@@ -1,5 +1,5 @@
-/* Dump Saleae Logic output to stdout.
-   Adapted from SaleaeDeviceSdk-1.1.14/source/ConsoleDemo.cpp */
+
+// For an example: look at sigrok-cli source code.
 
 #include "sigrok.h"
 
@@ -17,11 +17,36 @@ static void wrap_datafeed_in(const struct sr_dev_inst *sdi,
                              const struct sr_datafeed_packet *packet,
                              void *cb_data) {
   sigrok *s = (sigrok *)cb_data;
-  cerr << ".";
-  //s->datafeed_in(sdi, packet);
+  s->datafeed_in(sdi, packet);
+}
+
+void sigrok::datafeed_in(const struct sr_dev_inst *sdi,
+                         const struct sr_datafeed_packet *packet) {
+  switch(packet->type) {
+  case SR_DF_HEADER:
+    cerr << "H";
+    break;
+  case SR_DF_END:
+    cerr << "E";
+    break;
+  case SR_DF_LOGIC:
+    {
+      const struct sr_datafeed_logic *logic = (typeof(logic))packet->payload;
+      const uint8_t *data = (typeof(data))logic->data;
+      // cerr << logic->length;  // number of bytes
+      // cerr << logic->unitsize;// size in bytes of a single unit
+      // cerr << data[0];
+      cerr << ".";
+    }
+    break;
+  default:
+    cerr << "[type:" << packet->type << "]";
+    break;
+  }
 }
 
 sigrok::sigrok() :
+  _session(NULL),
   _inst(NULL),
   _samplerate(PYLA_DEFAULT_SAMPLERATE),
   _sink(shared_ptr<sink>(new hole())) {
@@ -34,7 +59,7 @@ sigrok::sigrok() :
   struct sr_dev_driver **drivers = sr_driver_list();
   for (int i = 0; drivers[i]; i++) {
     if(strcmp(drivers[i]->name, "fx2lafw")) continue; // FIXME: later use other
-    cout << " - " << drivers[i]->name << ": " << drivers[i]->longname << endl;
+    // ->name ->longname
     if (sr_driver_init(_sr, drivers[i]) != SR_OK) {
       g_critical("Failed to initialize driver.");
       exit(1); // FIXME
@@ -49,24 +74,30 @@ sigrok::sigrok() :
         exit(1);
       }
       _inst = inst;
-      sr_session_new(&_session);
-      sr_session_datafeed_callback_add(_session, wrap_datafeed_in, this);
-      if (sr_session_dev_add(_session, _inst) != SR_OK) {
-        g_critical("Failed to add device to session.");
-        sr_session_destroy(_session);
-        exit(1); 
-      }
-      for (GSList *l = _inst->channels; l; l = l->next) {
-        struct sr_channel *ch = (typeof(ch))l->data;
-        ch->enabled = TRUE; // enable all, we do our own filtering & triggering
-      }
-
+      break;
     }
     g_slist_free(tmpdevs);
   }
 }
 
 void sigrok::start() {
+  if (SR_OK != sr_config_set
+      (_inst, NULL,
+       SR_CONF_SAMPLERATE,
+       g_variant_new_uint64(_samplerate))) {
+    g_critical("Failed to configure samplerate.");
+  }
+  sr_session_new(&_session);
+  sr_session_datafeed_callback_add(_session, wrap_datafeed_in, this);
+  if (sr_session_dev_add(_session, _inst) != SR_OK) {
+    g_critical("Failed to add device to session.");
+    sr_session_destroy(_session);
+    exit(1); 
+  }
+  for (GSList *l = _inst->channels; l; l = l->next) {
+    struct sr_channel *ch = (typeof(ch))l->data;
+    ch->enabled = TRUE; // enable all, we do our own filtering & triggering
+  }
   if (sr_session_start(_session) != SR_OK) {
     g_critical("Failed to start session.");
     sr_session_destroy(_session);

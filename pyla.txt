@@ -374,7 +374,7 @@ Roadmap:
 - get sigrok to work with the custom FX2 firmware fx2lafw[3].
 - connect libsigrok driver to pylacore
 
-./sigrok-cli -d fx2lafw -C 0,1,2,3,4,5,6,7 --time 100
+./sigrok-cli -d fx2lafw -c samplerate=1m -C 0,1,2,3,4,5,6,7 --time 100
 
 Next: how to get at the datafeed?
 
