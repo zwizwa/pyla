@@ -352,3 +352,34 @@ works on tx:
         |__ Port 6: Dev 54, If 1, Class='bInterfaceClass 0xe0 not yet handled', Driver=btusb, 12M
         |__ Port 6: Dev 54, If 2, Class=vend., Driver=, 12M
         |__ Port 6: Dev 54, If 3, Class=app., Driver=, 12M
+
+
+
+Entry: sigrok
+Date: Sat Aug  9 13:07:35 EDT 2014
+
+Unfortunately pyla was already +- done when I heard of sigrok[1].  I'd
+like to find a way to integrate.  The simplest way would probably to
+integrate into libsigrokdecode[2] from two ways: export pyla C++ as a
+decoder and use the lsd decoders in pyla style python scripts.  Former
+is probably most useful.
+
+Second part is to use the libsigrok drivers as frontend to the pyla
+C++ decoders.
+
+Problem is time.  What I'm looking at is mostly direction: how to aim
+at integration instead of reinventing the wheel.
+
+Roadmap:
+- get sigrok to work with the custom FX2 firmware fx2lafw[3].
+- connect libsigrok driver to pylacore
+
+./sigrok-cli -d fx2lafw -C 0,1,2,3,4,5,6,7 --time 100
+
+Next: how to get at the datafeed?
+
+
+
+[1] http://sigrok.org
+[2] http://sigrok.org/wiki/Libsigrokdecode
+[3] http://sigrok.org/wiki/Fx2lafw

@@ -1,6 +1,12 @@
 project(pyla)
 cmake_minimum_required (VERSION 2.8.6)
 
+IF(WIN32)
+ELSE(WIN32)
+  find_package(PkgConfig)
+  PKG_CHECK_MODULES(Sigrok REQUIRED libsigrok)
+ENDIF(WIN32)
+
 find_package(Boost COMPONENTS system REQUIRED)
 
 
@@ -12,6 +18,7 @@ FIND_PACKAGE(PythonLibs)
 INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
 INCLUDE_DIRECTORIES(${BOOST_INCLUDE_PATH})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
+
 SET(CMAKE_SWIG_FLAGS "")
 SET_SOURCE_FILES_PROPERTIES(pylacore.i PROPERTIES CPLUSPLUS ON)
 SWIG_ADD_MODULE(pylacore python pylacore.i 
@@ -20,8 +27,8 @@ SWIG_ADD_MODULE(pylacore python pylacore.i
   saleae.cpp
   syncser.cpp
   measure.cpp
-)
-
+  sigrok.cpp
+)  
 
 
 include(ExternalProject)
@@ -33,6 +40,7 @@ ExternalProject_Add(SaleaeDeviceSdk
 )
 
 INCLUDE_DIRECTORIES(
+        ${Sigrok_INCLUDE_DIRS}
 	${Boost_INCLUDE_DIRS}
 	${CMAKE_BINARY_DIR}/SaleaeDeviceSdk-prefix/src/SaleaeDeviceSdk/include
 )
@@ -55,11 +63,12 @@ endif(WIN32)
 SWIG_LINK_LIBRARIES(pylacore
   ${PYTHON_LIBRARIES}
   ${Boost_SYSTEM_LIBRARY}
+  ${Sigrok_LDFLAGS}
   ${SALEADEVICE_LIBRARY})
 
 # DEBUG: print out all variables available to CMAKE
-#get_cmake_property(_variableNames VARIABLES)
-#foreach (_variableName ${_variableNames})
-#    message(STATUS "${_variableName}=${${_variableName}}")
-#endforeach()
+get_cmake_property(_variableNames VARIABLES)
+foreach (_variableName ${_variableNames})
+    message(STATUS "${_variableName}=${${_variableName}}")
+endforeach()
 
