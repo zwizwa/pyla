@@ -6,7 +6,7 @@
 #include "pylacore.h"
 #include "uart.h"
 #include "syncser.h"
-#include "saleae.h"
+//#include "saleae.h"
 #include "sigrok.h"
 #include "rpn.h"
 #include "shared.h"
@@ -39,7 +39,7 @@
 %include "syncser.h"
 %include "rpn.h"
 %include "shared.h"
-%include "saleae.h"
+//%include "saleae.h"
 %include "sigrok.h"
 %include "measure.h"
 
@@ -49,6 +49,6 @@
 
 
 
-%template(salea_device_list) std::vector<saleae *>;
+//%template(salea_device_list) std::vector<saleae *>;
 
 

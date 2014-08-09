@@ -28,6 +28,7 @@ void sigrok::datafeed_in(const struct sr_dev_inst *sdi,
     break;
   case SR_DF_END:
     cerr << "E";
+    exit(1);
     break;
   case SR_DF_LOGIC:
     {
@@ -65,7 +66,7 @@ sigrok::sigrok() :
     g_critical("sr_init() failed");
     exit(1); // FIXME
   }
-  cout << "sigrok.cpp: scanning drivers" << endl;
+  // cout << "sigrok.cpp: scanning drivers" << endl;
   struct sr_dev_driver **drivers = sr_driver_list();
   for (int i = 0; drivers[i]; i++) {
     if(strcmp(drivers[i]->name, "fx2lafw")) continue; // FIXME: later use other
@@ -78,7 +79,7 @@ sigrok::sigrok() :
     for (GSList *l = tmpdevs; l; l = l->next) {
       struct sr_dev_inst *inst = (typeof(inst))l->data;
       int nchan = g_slist_length(inst->channels);
-      cout << "   - " << inst << ": " << nchan << endl;
+      cout << drivers[i]->name << ": " << inst << ": " << nchan << endl;
       if (SR_OK != sr_dev_open(inst)) {
         g_critical("Failed to open device");
         exit(1);
@@ -119,7 +120,8 @@ static void wrap_thread_main(sigrok *s) {
   s->thread_main();
 }
 
-void sigrok::start() {
+void sigrok::start(double sr) {
+  set_samplerate_hint(sr);
   _thread = new boost::thread(wrap_thread_main, this);
 }
 

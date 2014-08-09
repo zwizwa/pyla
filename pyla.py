@@ -7,7 +7,7 @@ import pylacore
 import time
 import re
 
-saleae = pylacore.saleae
+# saleae = pylacore.saleae
 
 # FIXME.  Use condition variables and multiple threads instead?
 _poll = []
@@ -108,12 +108,17 @@ for attrib in dir(pylacore):
 
 
 
+# def devices():
+#     devices = []
+#     while not devices: # Wait for connection
+#         time.sleep(0.1)
+#         devices = pylacore.saleae.devices()
+#     return devices
+
+sigrok_device = pylacore.sigrok()  # FIXME
+saleae = sigrok_device # FIXME: compat
 def devices():
-    devices = []
-    while not devices: # Wait for connection
-        time.sleep(0.1)
-        devices = pylacore.saleae.devices()
-    return devices
+    return [sigrok_device]
 
 def apply_config(obj, config):
     """Apply config dict as set_ methods."""

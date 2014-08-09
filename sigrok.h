@@ -17,7 +17,7 @@ class sigrok : public cosink, public sampler {
   double get_samplerate();
   void set_samplerate_hint(double sr);
 
-  void start();
+  void start(double sr);
   void thread_main();
 
   void datafeed_in(const struct sr_dev_inst *sdi,
