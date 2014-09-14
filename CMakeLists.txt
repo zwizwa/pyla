@@ -20,6 +20,10 @@ find_package(Boost
 # http://swig.10945.n7.nabble.com/Unable-to-find-string-td8928.html
 FIND_PACKAGE(SWIG REQUIRED)
 INCLUDE(${SWIG_USE_FILE})
+
+# Search these versions first.  There doesn't seem to be a way to
+# express "I want 3.x".
+SET(Python_ADDITIONAL_VERSIONS "3.4m")
 FIND_PACKAGE(PythonLibs)
 INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
 INCLUDE_DIRECTORIES(${BOOST_INCLUDE_PATH})

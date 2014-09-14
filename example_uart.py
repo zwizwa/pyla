@@ -13,6 +13,7 @@ def saleae_uart():
             'baudrate' : 115200,
         }))
 
-print_ascii(saleae_uart())
+# print_ascii(saleae_uart())
+print_console(saleae_uart())
 
 

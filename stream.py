@@ -15,6 +15,13 @@ def print_ascii(seq, log = sys.stderr):
             log.write("\\x%02X" % b)
         log.flush()
 
+def print_console(seq, log = sys.stderr):
+    """Print byte stream as raw bytes, e.g for serial console."""
+    for b in seq:
+        log.write(chr(b))
+        log.flush()
+
+
 def print_hex(seq, count_init = 0, log = sys.stderr, newline = '\n'):
     """Print byte stream as hex."""
     count = count_init
