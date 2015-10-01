@@ -3,7 +3,7 @@ Python Logic Analyzer
 
 Streaming data analyzer for Saleae logic[1] based on Saleae SDK[2][3].
 Currently supports the 8-port version.
-Support for other aquisition modules is possible. (Send me some hardware!)
+Support for other acquisition modules is possible. (Send me some hardware!)
 
 Basic ideas
 -----------
